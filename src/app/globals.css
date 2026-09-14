@@ -1,0 +1,387 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-poppins), 'Poppins', system-ui, -apple-system, sans-serif;
+  --color-kr-orange: #F97316;
+  --color-kr-orange-dark: #EA580C;
+  --color-kr-black: #050505;
+  --color-kr-grid: #FDE7D3;
+}
+
+body {
+  font-family: var(--font-poppins), 'Poppins', system-ui, -apple-system, sans-serif;
+  color: #050505;
+  background-color: #ffffff;
+}
+
+/* =================================
+   SCROLLBAR UTILITIES
+================================= */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+/* =================================
+   PREMIUM BLUE/ORANGE GRID
+================================= */
+.kr-grid {
+  background-color: #ffffff;
+  background-image:
+    linear-gradient(to right, rgba(249, 115, 22, 0.10) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(249, 115, 22, 0.10) 1px, transparent 1px);
+  background-size: 70px 70px;
+}
+
+.dark-kr-grid {
+  background-color: #050505;
+  background-image:
+    linear-gradient(to right, rgba(249, 115, 22, 0.12) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(249, 115, 22, 0.12) 1px, transparent 1px);
+  background-size: 70px 70px;
+}
+
+.grid-fade {
+  background: radial-gradient(
+    circle at center,
+    rgba(255,255,255,0.30) 0%,
+    rgba(255,255,255,0.80) 60%,
+    rgba(255,255,255,0.98) 100%
+  );
+}
+
+.dark-grid-fade {
+  background: radial-gradient(
+    circle at center,
+    rgba(5,5,5,0.30) 0%,
+    rgba(5,5,5,0.80) 60%,
+    rgba(5,5,5,0.98) 100%
+  );
+}
+
+/* =================================
+   NAVIGATION & BUTTONS
+================================= */
+.nav-link {
+  position: relative;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -7px;
+  width: 0;
+  height: 2px;
+  background: #F97316;
+  transition: width 0.3s ease;
+}
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.kr-button {
+  background: #F97316;
+  color: white;
+  transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+}
+.kr-button:hover {
+  background: #EA580C;
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(249, 115, 22, 0.25);
+}
+
+/* =================================
+   HERO ANIMATIONS
+================================= */
+.founder-image {
+  filter: drop-shadow(0 30px 45px rgba(249, 115, 22, 0.15));
+}
+
+.hero-circle {
+  animation: rotateCircle 18s linear infinite;
+}
+@keyframes rotateCircle {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: revealAnimation 0.8s ease forwards;
+}
+.delay-1 { animation-delay: 0.15s; }
+.delay-2 { animation-delay: 0.30s; }
+.delay-3 { animation-delay: 0.45s; }
+
+@keyframes revealAnimation {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.marquee {
+  display: flex;
+  width: max-content;
+  animation: marqueeAnimation 20s linear infinite;
+}
+@keyframes marqueeAnimation {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.floating-dot {
+  animation: floatingDot 3s ease-in-out infinite;
+}
+@keyframes floatingDot {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+.follower-badge {
+  animation: badgeFloat 4s ease-in-out infinite;
+}
+@keyframes badgeFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* =================================
+   SERVICE MARQUEE (DIGITAL MARKETING)
+================================= */
+.service-marquee {
+  animation: serviceScroll 45s linear infinite;
+}
+.service-marquee:hover {
+  animation-play-state: paused;
+}
+.service-card {
+  width: 330px;
+  flex-shrink: 0;
+  padding: 0 32px;
+  border-right: 1px solid rgba(255,255,255,0.10);
+  transition: transform 0.3s ease;
+}
+.service-card:hover {
+  transform: translateY(-8px);
+}
+.service-icon {
+  width: 68px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(249,115,22,0.55);
+  border-radius: 50%;
+  color: #F97316;
+  margin-bottom: 24px;
+  background: rgba(249,115,22,0.04);
+  transition: all 0.3s ease;
+}
+.service-card:hover .service-icon {
+  background: rgba(249,115,22,0.12);
+  border-color: rgba(249,115,22,1);
+  transform: scale(1.08) rotate(-5deg);
+  box-shadow: 0 0 30px rgba(249,115,22,0.18);
+}
+.service-number {
+  display: block;
+  color: #F97316;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  margin-bottom: 12px;
+}
+.service-card h3 {
+  font-size: 28px;
+  line-height: 0.95;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.04em;
+}
+.service-card p {
+  margin-top: 18px;
+  max-width: 270px;
+  color: rgba(255,255,255,0.40);
+  font-size: 14px;
+  line-height: 1.7;
+  font-weight: 500;
+}
+@keyframes serviceScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@media (max-width: 768px) {
+  .service-card { width: 280px; padding: 0 24px; }
+  .service-card h3 { font-size: 24px; }
+  .service-card p { font-size: 13px; }
+}
+
+/* =================================
+   STUDIOZ MARQUEE
+================================= */
+.studioz-marquee {
+  animation: studiozScroll 55s linear infinite;
+}
+.studioz-marquee:hover {
+  animation-play-state: paused;
+}
+.studio-card {
+  width: 340px;
+  flex-shrink: 0;
+  padding: 0 20px;
+  border-right: 1px solid rgba(15,23,42,.10);
+  transition: transform .4s ease;
+}
+.studio-card:hover {
+  transform: translateY(-10px);
+}
+.studio-image {
+  position: relative;
+  width: 100%;
+  height: 430px;
+  overflow: hidden;
+  background: #f1f5f9;
+  border: 1px solid rgba(249,115,22,.15);
+}
+.studio-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .7s ease;
+}
+.studio-card:hover .studio-image img {
+  transform: scale(1.08);
+}
+.studio-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.45), transparent 55%);
+  pointer-events: none;
+}
+.studio-image-number {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255,255,255,.65);
+  border-radius: 50%;
+  background: rgba(0,0,0,.18);
+  backdrop-filter: blur(8px);
+  color: white;
+  font-size: 11px;
+  font-weight: 900;
+}
+.studio-number {
+  display: block;
+  color: #F97316;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .2em;
+  margin-bottom: 12px;
+}
+.studio-card h3 {
+  font-size: 30px;
+  line-height: .92;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -.04em;
+}
+.studio-card p {
+  margin-top: 18px;
+  max-width: 280px;
+  color: rgba(15,23,42,.48);
+  font-size: 14px;
+  line-height: 1.7;
+  font-weight: 500;
+}
+
+.dark .studio-card p,
+.dark-mode .studio-card p,
+[class*="dark"] .studio-card p {
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+
+.dark .studio-card h3,
+.dark-mode .studio-card h3,
+[class*="dark"] .studio-card h3 {
+  color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.dark .service-card p,
+.dark-mode .service-card p,
+[class*="dark"] .service-card p {
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+@keyframes studiozScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@media (max-width: 768px) {
+  .studio-card { width: 280px; padding: 0 18px; }
+  .studio-image { height: 360px; }
+  .studio-card h3 { font-size: 25px; }
+  .studio-card p { font-size: 13px; }
+}
+
+/* =================================
+   PORTFOLIO CARD & FILTER
+================================= */
+.portfolio-item {
+  transition: opacity .3s ease, transform .3s ease;
+}
+.portfolio-card {
+  overflow: hidden;
+}
+.portfolio-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(249,115,22,0);
+  pointer-events: none;
+  transition: border-color .35s ease;
+}
+.portfolio-card:hover::after {
+  border-color: rgba(249,115,22,.7);
+}
+
+/* =================================
+   FILTER TABS
+================================= */
+.filter-tab {
+  padding: 8px 18px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.25s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.filter-tab:hover {
+  border-color: #F97316;
+  color: #F97316;
+  background: rgba(249, 115, 22, 0.1);
+}
+.filter-tab.active {
+  background: #F97316;
+  border-color: #F97316;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.3);
+}
+
+

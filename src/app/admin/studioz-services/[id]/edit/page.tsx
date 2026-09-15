@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import ImageUploader from '@/components/admin/ImageUploader'
+import MediaGalleryUploader from '@/components/admin/MediaGalleryUploader'
 import { ServiceCategory, StudiozService } from '@/types/database'
 import { ArrowLeft, Loader2, Save } from 'lucide-react'
 
@@ -265,10 +266,9 @@ export default function EditStudiozServicePage({ params }: { params: Promise<{ i
             onChange={(url) => setHeroImageUrl(url)}
           />
 
-          {/* Gallery Images */}
-          <ImageUploader
-            multiple={true}
-            label="Gallery Images"
+          {/* Gallery Media (Photos & Videos) */}
+          <MediaGalleryUploader
+            label="Gallery Media (Photos & Video Links/Files)"
             value={galleryUrls}
             onChange={(urls) => setGalleryUrls(urls)}
           />

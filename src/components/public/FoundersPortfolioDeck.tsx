@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { useTheme } from '@/context/ThemeContext'
-import { FounderDeck } from '@/types/database'
-import { FALLBACK_FOUNDER_DECKS } from '@/lib/constants/fallbackData'
+import { FounderDeck, TeamMember } from '@/types/database'
+import { createClient } from '@/lib/supabase/client'
 import {
   ChevronLeft,
   ChevronRight,
@@ -26,36 +26,90 @@ interface FoundersPortfolioDeckProps {
 }
 
 export default function FoundersPortfolioDeck({
-  decks = FALLBACK_FOUNDER_DECKS,
+  decks: propDecks,
   title = 'Founder Portfolio & Presentation Decks',
   subtitle = 'Explore interactive pitch decks, creative credentials & brand portfolios from our Founders.',
 }: FoundersPortfolioDeckProps) {
   const { isDarkMode } = useTheme()
+  const supabase = createClient()
+  const [fetchedDecks, setFetchedDecks] = useState<FounderDeck[]>([])
+
+  useEffect(() => {
+    const fetchDecksAndTeam = async () => {
+      try {
+        const [decksRes, teamRes] = await Promise.all([
+          supabase.from('founder_decks').select('*').order('display_order', { ascending: true }),
+          supabase.from('team_members').select('*').order('display_order', { ascending: true }),
+        ])
+
+        const decksData = (decksRes.data as FounderDeck[]) || []
+        const teamData = (teamRes.data as TeamMember[]) || []
+
+        const baseDecks = propDecks && propDecks.length > 0 ? propDecks : decksData
+
+        if (baseDecks.length > 0) {
+          const enrichedDecks: FounderDeck[] = baseDecks.map((deck) => {
+            const matchedMember = teamData.find(
+              (m) =>
+                m.name.toLowerCase().includes(deck.founder_name.toLowerCase()) ||
+                deck.founder_name.toLowerCase().includes(m.name.toLowerCase()) ||
+                (deck.division && m.role?.toLowerCase().includes(deck.division))
+            )
+
+            if (matchedMember) {
+              return {
+                ...deck,
+                founder_role: deck.founder_role || matchedMember.role || 'Founder',
+                avatar_url: deck.avatar_url || matchedMember.photo_url || undefined,
+                bio: deck.bio || matchedMember.bio || undefined,
+                social_links: {
+                  ...(matchedMember.social_links as Record<string, string>),
+                  ...(deck.social_links as Record<string, string>),
+                },
+              }
+            }
+            return deck
+          })
+          setFetchedDecks(enrichedDecks)
+        } else if (teamData.length > 0) {
+          const fallbackDecks: FounderDeck[] = teamData.map((m, idx) => ({
+            id: m.id || `team-deck-${idx}`,
+            founder_name: m.name,
+            founder_role: m.role || 'Founder',
+            avatar_url: m.photo_url || undefined,
+            bio: m.bio || undefined,
+            division: (m.role?.toLowerCase().includes('studioz') ? 'studioz' : 'marketing') as 'studioz' | 'marketing',
+            slides: [],
+            social_links: m.social_links || undefined,
+            display_order: m.display_order || idx + 1,
+          }))
+          setFetchedDecks(fallbackDecks)
+        }
+      } catch (err) {
+        console.warn('Error fetching founder decks & team members:', err)
+      }
+    }
+
+    fetchDecksAndTeam()
+  }, [propDecks, supabase])
+
+  const activeDecks = (propDecks && propDecks.length > 0) ? propDecks : fetchedDecks
 
   // State
   const [activeFounderIndex, setActiveFounderIndex] = useState(0)
   const [activeSlideIndex, setActiveSlideIndex] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [viewMode, setViewMode] = useState<'slides' | 'pdf'>('slides')
-  const [activeDecks, setActiveDecks] = useState<FounderDeck[]>(decks)
 
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('kr_founder_decks')
-      if (saved) {
-        const parsed = JSON.parse(saved)
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setActiveDecks(parsed)
-        }
-      }
-    } catch (e) {
-      // ignore
-    }
-  }, [decks])
+  if (!activeDecks || activeDecks.length === 0) {
+    return null
+  }
 
-  const currentFounder = activeDecks[activeFounderIndex] || activeDecks[0] || decks[0]
+  const currentFounder = activeDecks[activeFounderIndex] || activeDecks[0]
   const slides = currentFounder?.slides || []
   const totalSlides = slides.length
+  const hasPdf = Boolean(currentFounder?.pdf_url && currentFounder.pdf_url.trim().length > 0)
+  const effectiveViewMode = hasPdf ? viewMode : 'slides'
 
   const handleNextSlide = () => {
     setActiveSlideIndex((prev) => (prev + 1) % Math.max(totalSlides, 1))
@@ -220,40 +274,42 @@ export default function FoundersPortfolioDeck({
           </div>
 
           <div className="flex items-center gap-2.5 shrink-0 self-end md:self-center">
-            {/* View Mode Toggle */}
-            <div
-              className={`p-1 rounded-xl border flex items-center gap-1 text-xs font-semibold ${
-                isDarkMode ? 'bg-zinc-950 border-zinc-800' : 'bg-zinc-100 border-zinc-200'
-              }`}
-            >
-              <button
-                onClick={() => setViewMode('slides')}
-                className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                  viewMode === 'slides'
-                    ? 'bg-orange-500 text-black font-bold'
-                    : isDarkMode
-                    ? 'text-zinc-400 hover:text-white'
-                    : 'text-zinc-600 hover:text-zinc-900'
+            {/* View Mode Toggle - ONLY SHOWN IF PDF FILE EXISTS */}
+            {hasPdf && (
+              <div
+                className={`p-1 rounded-xl border flex items-center gap-1 text-xs font-semibold ${
+                  isDarkMode ? 'bg-zinc-950 border-zinc-800' : 'bg-zinc-100 border-zinc-200'
                 }`}
               >
-                Interactive Slides
-              </button>
-              <button
-                onClick={() => setViewMode('pdf')}
-                className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                  viewMode === 'pdf'
-                    ? 'bg-orange-500 text-black font-bold'
-                    : isDarkMode
-                    ? 'text-zinc-400 hover:text-white'
-                    : 'text-zinc-600 hover:text-zinc-900'
-                }`}
-              >
-                PDF View
-              </button>
-            </div>
+                <button
+                  onClick={() => setViewMode('slides')}
+                  className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                    effectiveViewMode === 'slides'
+                      ? 'bg-orange-500 text-black font-bold'
+                      : isDarkMode
+                      ? 'text-zinc-400 hover:text-white'
+                      : 'text-zinc-600 hover:text-zinc-900'
+                  }`}
+                >
+                  Interactive Slides
+                </button>
+                <button
+                  onClick={() => setViewMode('pdf')}
+                  className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                    effectiveViewMode === 'pdf'
+                      ? 'bg-orange-500 text-black font-bold'
+                      : isDarkMode
+                      ? 'text-zinc-400 hover:text-white'
+                      : 'text-zinc-600 hover:text-zinc-900'
+                  }`}
+                >
+                  PDF View
+                </button>
+              </div>
+            )}
 
-            {/* Download PDF Button */}
-            {currentFounder.pdf_url && (
+            {/* Download PDF Button - ONLY SHOWN IF PDF FILE EXISTS */}
+            {hasPdf && (
               <a
                 href={currentFounder.pdf_url}
                 download
@@ -282,7 +338,7 @@ export default function FoundersPortfolioDeck({
         </div>
 
         {/* DECK PRESENTATION FRAME (A4 Landscape Horizontal Aspect Ratio: 1.414 : 1) */}
-        {viewMode === 'slides' ? (
+        {effectiveViewMode === 'slides' ? (
           <div className="relative max-w-4xl mx-auto">
             {/* A4 Horizontal Sheet Container */}
             <div

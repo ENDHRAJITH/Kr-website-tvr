@@ -10,65 +10,11 @@ interface HomePortfolioProps {
   initialItems: PortfolioItem[]
 }
 
-const FALLBACK_ITEMS: Partial<PortfolioItem>[] = [
-  {
-    id: 'f1',
-    title: 'A Story Worth Remembering.',
-    category: 'studioz',
-    cover_image_url: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1600&q=90',
-    description: 'Real emotions, genuine moments and beautiful memories captured forever.'
-  },
-  {
-    id: 'f2',
-    title: 'Identity That Stands Out.',
-    category: 'digital',
-    cover_image_url: 'https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&w=1200&q=90',
-    description: 'A complete brand refresh for modern growth.'
-  },
-  {
-    id: 'f3',
-    title: 'Before The Big Day.',
-    category: 'studioz',
-    cover_image_url: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1200&q=90',
-    description: 'Cinematic pre-wedding frames.'
-  },
-  {
-    id: 'f4',
-    title: 'Campaign Creative',
-    category: 'digital',
-    cover_image_url: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?auto=format&fit=crop&w=900&q=85',
-    description: 'High converting ad creatives.'
-  },
-  {
-    id: 'f5',
-    title: 'Event Stories',
-    category: 'studioz',
-    cover_image_url: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=900&q=85',
-    description: 'Corporate and luxury event coverage.'
-  },
-  {
-    id: 'f6',
-    title: 'Growth & Results',
-    category: 'digital',
-    cover_image_url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=900&q=85',
-    description: 'Performance marketing metrics.'
-  },
-  {
-    id: 'f7',
-    title: 'Celebration Films',
-    category: 'studioz',
-    cover_image_url: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=900&q=85',
-    description: 'Cinematic highlight reels.'
-  }
-]
-
 export default function HomePortfolio({ initialItems }: HomePortfolioProps) {
   const { isDarkMode } = useTheme()
   const [filter, setFilter] = useState<'all' | 'studioz' | 'digital'>('all')
 
-  const itemsToDisplay = initialItems && initialItems.length > 0
-    ? initialItems
-    : (FALLBACK_ITEMS as PortfolioItem[])
+  const itemsToDisplay = initialItems ?? []
 
   const filteredItems = itemsToDisplay.filter(item => {
     if (filter === 'all') return true

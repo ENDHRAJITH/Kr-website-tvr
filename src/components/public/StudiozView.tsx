@@ -6,6 +6,8 @@ import { StudiozService, ServiceCategory } from '@/types/database'
 import StudiozVideoHero from './StudiozVideoHero'
 import { StudiozVideoItem } from './StudiozVideoMarquee'
 import { useTheme } from '@/context/ThemeContext'
+import { getMediaType, getYouTubeEmbedUrl, getInstagramEmbedUrl } from '@/lib/utils/media'
+import { Play, Video } from 'lucide-react'
 
 interface StudiozViewProps {
   initialServices?: StudiozService[]
@@ -268,17 +270,6 @@ const FALLBACK_SERVICES: StudiozService[] = [
   }
 ]
 
-const DEFAULT_CATEGORIES = [
-  { slug: 'all', name: 'All Services' },
-  { slug: 'wedding', name: 'Wedding' },
-  { slug: 'events', name: 'Events' },
-  { slug: 'baby', name: 'Baby & Kids' },
-  { slug: 'ceremonies', name: 'Ceremonies' },
-  { slug: 'portraits', name: 'Portraits' },
-  { slug: 'commercial', name: 'Commercial' },
-  { slug: 'live', name: 'Live Stream' },
-]
-
 export default function StudiozView({
   initialServices = [],
   categories = [],
@@ -290,12 +281,11 @@ export default function StudiozView({
   const [lightboxImg, setLightboxImg] = useState<string | null>(null)
   const [addedNotice, setAddedNotice] = useState<string | null>(null)
 
-
   const services = initialServices ?? []
 
   const catList = categories && categories.length > 0
     ? [{ id: 'all', slug: 'all', name: 'All Services', division: 'studioz', display_order: 0 }, ...categories]
-    : DEFAULT_CATEGORIES.map(c => ({ id: c.slug, slug: c.slug, name: c.name, division: 'studioz' as const, display_order: 0 }))
+    : [{ id: 'all', slug: 'all', name: 'All Services', division: 'studioz', display_order: 0 }]
 
   const filteredServices = services.filter((s) => {
     if (activeFilter === 'all') return true
@@ -713,30 +703,70 @@ export default function StudiozView({
                 </div>
               )}
 
-              {/* Gallery Grid */}
+              {/* Gallery Grid (Photos & Videos) */}
               {detailService.gallery_urls && detailService.gallery_urls.length > 0 && (
                 <div className={`pt-6 border-t ${isDarkMode ? 'border-white/10' : 'border-slate-200'}`}>
                   <h3 className={`font-display font-bold uppercase text-lg mb-4 ${
                     isDarkMode ? 'text-white' : 'text-slate-900'
                   }`}>
-                    Sample Gallery Work
+                    Sample Gallery Work (Photos & Videos)
                   </h3>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {detailService.gallery_urls.map((img, i) => (
-                      <div
-                        key={i}
-                        onClick={() => setLightboxImg(img)}
-                        className="relative h-40 rounded-lg overflow-hidden border border-slate-200 dark:border-white/10 cursor-pointer group"
-                      >
-                        <Image
-                          src={img}
-                          alt="Gallery item"
-                          fill
-                          className="object-cover group-hover:scale-105 transition duration-300"
-                          unoptimized
-                        />
-                      </div>
-                    ))}
+                    {detailService.gallery_urls.map((url, i) => {
+                      const mediaType = getMediaType(url)
+                      const isVideo = mediaType !== 'image'
+
+                      return (
+                        <div
+                          key={i}
+                          onClick={() => setLightboxImg(url)}
+                          className="relative h-44 rounded-xl overflow-hidden border border-slate-200 dark:border-white/10 cursor-pointer group bg-zinc-900"
+                        >
+                          {mediaType === 'image' && (
+                            <Image
+                              src={url}
+                              alt={`Gallery item ${i + 1}`}
+                              fill
+                              className="object-cover group-hover:scale-105 transition duration-500"
+                              unoptimized
+                            />
+                          )}
+
+                          {mediaType === 'video_file' && (
+                            <video
+                              src={url}
+                              className="object-cover w-full h-full group-hover:scale-105 transition duration-500"
+                              muted
+                              playsInline
+                            />
+                          )}
+
+                          {(mediaType === 'youtube' || mediaType === 'instagram') && (
+                            <div className="w-full h-full p-4 flex flex-col items-center justify-center text-center bg-zinc-950 text-white gap-2 group-hover:scale-105 transition duration-500">
+                              <Video className="w-8 h-8 text-[#F97316] animate-pulse" />
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-[#F97316]">
+                                {mediaType === 'youtube' ? 'YouTube Video' : 'Instagram Reel'}
+                              </span>
+                              <p className="text-[9px] text-zinc-400 truncate max-w-full px-2">Click to Play</p>
+                            </div>
+                          )}
+
+                          {/* Video Badge & Play Button Overlay */}
+                          {isVideo && (
+                            <>
+                              <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-[#F97316] text-black text-[9px] font-bold uppercase tracking-wider shadow z-10">
+                                {mediaType === 'youtube' ? 'YouTube' : mediaType === 'instagram' ? 'Reel' : 'Video'}
+                              </span>
+                              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-colors flex items-center justify-center">
+                                <div className="w-11 h-11 rounded-full bg-[#F97316] text-black flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                  <Play className="w-5 h-5 fill-black ml-0.5" />
+                                </div>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
               )}
@@ -745,28 +775,62 @@ export default function StudiozView({
         </div>
       )}
 
-      {/* LIGHTBOX IMAGE ZOOM */}
+      {/* MEDIA LIGHTBOX MODAL (Photos & Videos) */}
       {lightboxImg && (
         <div
-          className="fixed inset-0 z-[130] bg-black/90 flex items-center justify-center p-4 cursor-pointer"
+          className="fixed inset-0 z-[130] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 sm:p-8"
           onClick={() => setLightboxImg(null)}
         >
           <button
             type="button"
-            className="absolute top-6 right-6 text-white text-3xl font-bold hover:text-[#F97316]"
+            className="absolute top-6 right-6 text-white text-3xl font-bold hover:text-[#F97316] z-50 cursor-pointer"
             onClick={() => setLightboxImg(null)}
           >
             ×
           </button>
-          <div className="relative max-w-4xl max-h-[85vh] w-full h-full flex items-center justify-center">
-            <Image
-              src={lightboxImg}
-              alt="Gallery preview"
-              width={1200}
-              height={800}
-              className="max-h-[85vh] max-w-[90vw] object-contain rounded-lg"
-              unoptimized
-            />
+          
+          <div
+            className="relative max-w-5xl max-h-[85vh] w-full h-full flex items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {getMediaType(lightboxImg) === 'youtube' && (
+              <iframe
+                src={getYouTubeEmbedUrl(lightboxImg)}
+                className="w-full max-w-4xl aspect-video rounded-2xl border border-white/20 shadow-2xl"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            )}
+
+            {getMediaType(lightboxImg) === 'instagram' && (
+              <div className="w-full max-w-md h-[80vh] rounded-2xl border border-white/20 overflow-hidden shadow-2xl bg-black">
+                <iframe
+                  src={getInstagramEmbedUrl(lightboxImg)}
+                  className="w-full h-full border-none"
+                  allowFullScreen
+                />
+              </div>
+            )}
+
+            {getMediaType(lightboxImg) === 'video_file' && (
+              <video
+                src={lightboxImg}
+                controls
+                autoPlay
+                className="max-h-[85vh] max-w-[90vw] rounded-2xl border border-white/20 shadow-2xl"
+              />
+            )}
+
+            {getMediaType(lightboxImg) === 'image' && (
+              <Image
+                src={lightboxImg}
+                alt="Gallery preview"
+                width={1200}
+                height={800}
+                className="max-h-[85vh] max-w-[90vw] object-contain rounded-2xl border border-white/20 shadow-2xl"
+                unoptimized
+              />
+            )}
           </div>
         </div>
       )}

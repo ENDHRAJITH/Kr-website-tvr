@@ -31,7 +31,7 @@ export default function StatsCounter({ stats }: StatsCounterProps) {
     return true
   })
 
-  const displayStats = cleanStats.length > 0 ? cleanStats : FALLBACK_STATS
+  const displayStats = cleanStats
 
   const getIcon = (iconName?: string | null) => {
     switch (iconName?.toLowerCase()) {

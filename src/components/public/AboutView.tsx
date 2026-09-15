@@ -13,92 +13,16 @@ interface AboutViewProps {
   initialStats: SiteStat[]
 }
 
-const FALLBACK_TEAM: TeamMember[] = [
-  {
-    id: 't1',
-    name: 'KARTHIK',
-    role: 'Founder — KR Digital Marketing',
-    photo_url: '/karthik.png',
-    bio: 'Karthik leads the digital marketing side of KR, focusing on branding, advertising, digital strategy and creative growth. His role is centred around helping businesses communicate their value, strengthen their digital presence and connect with the right audience.',
-    social_links: {
-      youtube: 'https://www.youtube.com/@karthicktamilan',
-      instagram: 'https://www.instagram.com/karthick_tamilan__/?hl=en',
-      facebook: 'https://www.facebook.com/KRDigitalMarketing2019/',
-      whatsapp: 'https://wa.me/919626759859',
-    },
-    display_order: 1
-  },
-  {
-    id: 't2',
-    name: 'RAJITHA',
-    role: 'Founder — KR Studioz',
-    photo_url: '/rajitha.png',
-    bio: 'Rajitha leads KR Studioz with a focus on photography, visual storytelling and capturing meaningful moments. Her work focuses on turning real emotions, celebrations and experiences into visual memories that can be cherished.',
-    social_links: {
-      youtube: 'https://www.youtube.com/@krstudioz',
-      instagram: 'https://www.instagram.com/kr_studioz/',
-      facebook: 'https://www.facebook.com/krstudioz/',
-      whatsapp: 'https://wa.me/919626759859',
-    },
-    display_order: 2
-  }
-]
-
-const FALLBACK_TESTIMONIALS: Testimonial[] = [
-  {
-    id: 'tes1',
-    name: 'Anand & Divya',
-    text: 'KR Studioz captured our wedding moments with pure emotion and elegance. Every photograph tells a story that we will cherish for a lifetime.',
-    rating: 5,
-    photo_url: null,
-    display_order: 1,
-    is_active: true
-  },
-  {
-    id: 'tes2',
-    name: 'Apex Retail',
-    text: 'KR Digital Marketing turned our brand vision into a powerful online campaign. Our social engagement and customer leads grew multifold!',
-    rating: 5,
-    photo_url: null,
-    display_order: 2,
-    is_active: true
-  },
-  {
-    id: 'tes3',
-    name: 'Priya Mohan',
-    text: 'Cinematic composition and incredible professionalism! The team was super patient and brought out the best natural candid shots.',
-    rating: 5,
-    photo_url: null,
-    display_order: 3,
-    is_active: true
-  }
-]
-
-const FALLBACK_STATS: SiteStat[] = [
-  { id: 's1', label: 'Social Media Followers', value: '390K+', icon: null, display_order: 1 },
-  { id: 's2', label: 'Projects Completed', value: '500+', icon: null, display_order: 2 },
-  { id: 's3', label: 'Happy Clients', value: '350+', icon: null, display_order: 3 },
-  { id: 's4', label: 'Brands & Businesses', value: '120+', icon: null, display_order: 4 }
-]
-
 export default function AboutView({
-  initialTeamMembers,
-  initialTestimonials,
-  initialStats
+  initialTeamMembers = [],
+  initialTestimonials = [],
+  initialStats = []
 }: AboutViewProps) {
   const { isDarkMode } = useTheme()
 
-  const teamMembers = initialTeamMembers && initialTeamMembers.length > 0
-    ? initialTeamMembers
-    : FALLBACK_TEAM
-
-  const testimonials = initialTestimonials && initialTestimonials.length > 0
-    ? initialTestimonials
-    : FALLBACK_TESTIMONIALS
-
-  const stats = initialStats && initialStats.length > 0
-    ? initialStats
-    : FALLBACK_STATS
+  const teamMembers = initialTeamMembers
+  const testimonials = initialTestimonials
+  const stats = initialStats
 
   return (
     <main className={`transition-colors duration-500 ${isDarkMode ? 'bg-[#050505] text-white' : 'bg-white text-slate-900'}`}>

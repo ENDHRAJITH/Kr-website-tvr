@@ -172,13 +172,6 @@ const FALLBACK_SERVICES: MarketingService[] = [
   }
 ]
 
-const DEFAULT_CATEGORIES = [
-  { slug: 'all', name: 'All Services' },
-  { slug: 'ads', name: 'Performance Ads' },
-  { slug: 'creative', name: 'Creative & Content' },
-  { slug: 'brand', name: 'Brand & Visibility' },
-]
-
 export default function DigitalMarketingView({
   initialServices,
   categories
@@ -192,7 +185,7 @@ export default function DigitalMarketingView({
 
   const catList = categories && categories.length > 0
     ? [{ id: 'all', slug: 'all', name: 'All Services', division: 'marketing', display_order: 0 }, ...categories]
-    : DEFAULT_CATEGORIES.map(c => ({ id: c.slug, slug: c.slug, name: c.name, division: 'marketing' as const, display_order: 0 }))
+    : [{ id: 'all', slug: 'all', name: 'All Services', division: 'marketing', display_order: 0 }]
 
   const filteredServices = services.filter((s) => {
     if (activeFilter === 'all') return true

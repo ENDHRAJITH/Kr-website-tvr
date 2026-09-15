@@ -17,61 +17,12 @@ interface StudiozVideoMarqueeProps {
   videos?: StudiozVideoItem[]
 }
 
-const DEFAULT_SHOWCASE_VIDEOS: StudiozVideoItem[] = [
-  {
-    id: 'v1',
-    title: 'A Story Worth Remembering',
-    category: 'Wedding Film',
-    thumbnail_url: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=85',
-    video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    duration: '03:45'
-  },
-  {
-    id: 'v2',
-    title: 'Before The Big Day',
-    category: 'Pre-Wedding Cinematic',
-    thumbnail_url: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=1200&q=85',
-    video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    duration: '02:30'
-  },
-  {
-    id: 'v3',
-    title: 'Grand Wedding Reception',
-    category: 'Reception Highlights',
-    thumbnail_url: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1200&q=85',
-    video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    duration: '04:12'
-  },
-  {
-    id: 'v4',
-    title: 'Joyful Baby Shower & Ceremony',
-    category: 'Baby Function',
-    thumbnail_url: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=1200&q=85',
-    video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    duration: '01:50'
-  },
-  {
-    id: 'v5',
-    title: 'Cinematic Fashion & Model Shoot',
-    category: 'Model Reel',
-    thumbnail_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&q=85',
-    video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    duration: '02:15'
-  },
-  {
-    id: 'v6',
-    title: 'Live Event Broadcast Showcase',
-    category: 'Live Broadcast',
-    thumbnail_url: 'https://images.unsplash.com/photo-1598387993281-cecf8b71a8f8?auto=format&fit=crop&w=1200&q=85',
-    video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-    duration: '05:00'
-  }
-]
-
 export default function StudiozVideoMarquee({ videos }: StudiozVideoMarqueeProps) {
   const [selectedVideo, setSelectedVideo] = useState<StudiozVideoItem | null>(null)
 
-  const items = videos && videos.length > 0 ? videos : DEFAULT_SHOWCASE_VIDEOS
+  const items = videos || []
+  if (items.length === 0) return null
+
   // Duplicate array to achieve seamless infinite marquee loop
   const marqueeList = [...items, ...items, ...items]
 

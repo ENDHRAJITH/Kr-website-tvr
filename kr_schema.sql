@@ -207,3 +207,27 @@ create policy "public insert enquiry item" on enquiry_items for insert with chec
 
 drop policy if exists "admin read enquiry item" on enquiry_items;
 create policy "admin read enquiry item" on enquiry_items for select using (auth.role() = 'authenticated');
+
+-- 11. FOUNDER DECKS
+create table if not exists founder_decks (
+  id text primary key,
+  founder_name text not null,
+  founder_role text not null,
+  division text not null,
+  avatar_url text,
+  pdf_url text,
+  slides text[],
+  bio text,
+  facebook_url text,
+  instagram_url text,
+  youtube_url text,
+  whatsapp_url text,
+  linkedin_url text,
+  display_order int default 1,
+  updated_at timestamptz default now()
+);
+
+alter table founder_decks enable row level security;
+drop policy if exists "allow all founder_decks" on founder_decks;
+create policy "allow all founder_decks" on founder_decks for all using (true) with check (true);
+

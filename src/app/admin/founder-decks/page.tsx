@@ -60,21 +60,30 @@ export default function AdminFounderDecksPage() {
     if (!error && data && data.length > 0) {
       setDecks(data as FounderDeck[])
     } else {
-      // Check localStorage fallback
-      try {
-        const saved = localStorage.getItem('kr_founder_decks')
-        if (saved) {
-          const parsed = JSON.parse(saved)
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setDecks(parsed)
-            setLoading(false)
-            return
-          }
+      setDecks([
+        {
+          id: 'rajitha-deck',
+          founder_name: 'Rajitha',
+          founder_role: 'Founder & Creative Director (KR Studioz)',
+          division: 'studioz',
+          avatar_url: '',
+          pdf_url: '/docs/rajitha-studioz-portfolio.pdf',
+          bio: 'Pioneer of high-end wedding cinematography and storytelling.',
+          slides: [],
+          display_order: 1
+        },
+        {
+          id: 'karthik-deck',
+          founder_name: 'Karthik',
+          founder_role: 'Founder & Managing Director (KR Digital)',
+          division: 'marketing',
+          avatar_url: '',
+          pdf_url: '/docs/karthik-digital-marketing-deck.pdf',
+          bio: 'Brand strategist & growth hacker driving multi-million reach.',
+          slides: [],
+          display_order: 2
         }
-      } catch (e) {
-        // ignore
-      }
-      setDecks(FALLBACK_FOUNDER_DECKS)
+      ])
     }
     setLoading(false)
   }
@@ -114,24 +123,41 @@ export default function AdminFounderDecksPage() {
     const newDecks = decks.map((d, i) => (i === activeIdx ? { ...d, id: targetId, ...payload } : d))
     setDecks(newDecks)
 
-    // Save to localStorage for instant client persistence across page refreshes
-    try {
-      localStorage.setItem('kr_founder_decks', JSON.stringify(newDecks))
-    } catch (e) {
-      console.warn('LocalStorage save error:', e)
-    }
-
-    const { error } = await supabase
+    let { error } = await supabase
       .from('founder_decks')
       .upsert({ id: targetId, ...payload })
 
+    // If Supabase schema is missing optional social columns, retry with core payload
+    if (error && (error.message?.toLowerCase().includes('column') || error.message?.toLowerCase().includes('schema'))) {
+      const corePayload = {
+        id: targetId,
+        founder_name: founderName,
+        founder_role: founderRole,
+        division,
+        avatar_url: avatarUrl,
+        pdf_url: pdfUrl,
+        bio,
+        slides: updatedSlides,
+        display_order: activeIdx + 1,
+      }
+      const retryResult = await supabase
+        .from('founder_decks')
+        .upsert(corePayload)
+
+      if (!retryResult.error) {
+        error = null
+      } else {
+        error = retryResult.error
+      }
+    }
+
     if (error) {
       setMessage({
-        type: 'success',
-        text: `Saved & persisted locally! (Note: Run supabase_setup.sql in Supabase to sync across devices).`,
+        type: 'error',
+        text: `Error saving to Supabase: ${error.message}. Please run fix_rls.sql in your Supabase SQL editor.`,
       })
     } else {
-      setMessage({ type: 'success', text: `Successfully updated ${founderName}'s portfolio deck!` })
+      setMessage({ type: 'success', text: `Successfully updated ${founderName}'s portfolio deck in Supabase database!` })
       fetchDecks()
     }
 

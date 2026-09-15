@@ -25,7 +25,15 @@ export async function getLiveDatabaseContext(userQuery: string): Promise<{
   const documents: Document[] = []
 
   try {
-    const supabase = await createClient()
+    let supabase: any
+    try {
+      supabase = await createClient()
+    } catch {
+      const { createClient: createDirectClient } = await import('@supabase/supabase-js')
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+      const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+      supabase = createDirectClient(url, key)
+    }
 
     // 1. Fetch Studioz Services
     const { data: studiozServices } = await supabase

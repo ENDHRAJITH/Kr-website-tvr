@@ -23,6 +23,7 @@ import {
   X,
   Sun,
   Moon,
+  ShieldCheck,
 } from 'lucide-react'
 
 const navItems = [
@@ -38,6 +39,7 @@ const navItems = [
   { name: 'Testimonials', href: '/admin/testimonials', icon: MessageSquareQuote },
   { name: 'Client Logos', href: '/admin/client-logos', icon: ImageIcon },
   { name: 'Site Stats', href: '/admin/site-stats', icon: BarChart2 },
+  { name: 'Admin Security', href: '/admin/settings', icon: ShieldCheck },
 ]
 
 export default function Sidebar() {
@@ -53,7 +55,13 @@ export default function Sidebar() {
   const isDark = theme === 'dark'
 
   const handleSignOut = async () => {
-    document.cookie = 'kr_admin_session=; path=/; max-age=0; SameSite=Lax'
+    try {
+      await fetch('/api/admin/auth/logout', { method: 'POST' })
+    } catch (err) {
+      console.warn('Logout request warning:', err)
+    }
+    document.cookie = 'kr_admin_jwt=; path=/; max-age=0'
+    document.cookie = 'kr_admin_session=; path=/; max-age=0'
     await supabase.auth.signOut()
     router.push('/admin/login')
     router.refresh()

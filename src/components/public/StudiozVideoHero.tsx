@@ -5,81 +5,33 @@ import Image from 'next/image'
 import VideoPlayerModal from './VideoPlayerModal'
 import { StudiozVideoItem } from './StudiozVideoMarquee'
 
-const DEFAULT_VIDEOS: StudiozVideoItem[] = [
-  {
-    id: 'hero-1',
-    title: 'Grand Cinematic Wedding Story',
-    category: 'Wedding Film',
-    thumbnail_url: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1600&q=85',
-    video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-  },
-  {
-    id: 'hero-2',
-    title: 'Pre-Wedding Love Story Highlights',
-    category: 'Pre-Wedding',
-    thumbnail_url: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=1600&q=85',
-    video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-  },
-  {
-    id: 'hero-3',
-    title: 'Royal Reception Celebration Teaser',
-    category: 'Reception',
-    thumbnail_url: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1600&q=85',
-    video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-  },
-  {
-    id: 'hero-4',
-    title: 'Traditional Nikkah Ceremony Moments',
-    category: 'Nikkah',
-    thumbnail_url: 'https://images.unsplash.com/photo-1544078751-58fee2d8a03b?auto=format&fit=crop&w=1600&q=85',
-    video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-  },
-  {
-    id: 'hero-5',
-    title: 'Adorable Baby Milestone Shoot',
-    category: 'Baby Shoot',
-    thumbnail_url: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=1600&q=85',
-    video_url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-  }
-]
-
 interface StudiozVideoHeroProps {
   videos?: StudiozVideoItem[]
   isDarkMode?: boolean
 }
 
-export default function StudiozVideoHero({ videos, isDarkMode = false }: StudiozVideoHeroProps) {
-  const [activeVideos, setActiveVideos] = useState<StudiozVideoItem[]>(videos && videos.length > 0 ? videos : DEFAULT_VIDEOS)
+export default function StudiozVideoHero({ videos = [], isDarkMode = false }: StudiozVideoHeroProps) {
+  const [activeVideos, setActiveVideos] = useState<StudiozVideoItem[]>(videos)
 
   useEffect(() => {
-    if (videos && videos.length > 0) {
-      setActiveVideos(videos)
-      return
-    }
-    try {
-      const saved = localStorage.getItem('kr_studioz_videos')
-      if (saved) {
-        const parsed = JSON.parse(saved)
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setActiveVideos(parsed)
-        }
-      }
-    } catch (e) {
-      // ignore
-    }
+    setActiveVideos(videos)
   }, [videos])
 
-  const items = activeVideos && activeVideos.length > 0 ? activeVideos : DEFAULT_VIDEOS
+  const items = activeVideos
   const [activeIndex, setActiveIndex] = useState(0)
   const [activeModalUrl, setActiveModalUrl] = useState<string | null>(null)
   const [activeModalTitle, setActiveModalTitle] = useState<string>('')
   const [isPaused, setIsPaused] = useState(false)
 
+  if (!items || items.length === 0) {
+    return null
+  }
+
   const activeItem = items[activeIndex] || items[0]
 
   // Auto-play timer for carousel
   useEffect(() => {
-    if (isPaused || activeModalUrl !== null) return
+    if (isPaused || activeModalUrl !== null || items.length === 0) return
     const timer = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % items.length)
     }, 5000)

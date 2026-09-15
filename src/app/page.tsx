@@ -5,7 +5,8 @@ import { getClientLogos } from '@/lib/queries/clientLogos'
 import { getSiteStats } from '@/lib/queries/siteStats'
 import HomeView from '@/components/public/HomeView'
 
-export const revalidate = 60 // Revalidate cache every 60 seconds
+export const revalidate = 0
+export const dynamic = 'force-dynamic'
 
 export default async function HomePage() {
   const [studiozServices, marketingServices, portfolioItems, clientLogos, siteStats] =

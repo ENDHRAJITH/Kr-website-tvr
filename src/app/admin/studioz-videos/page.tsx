@@ -22,35 +22,12 @@ export default function StudiozVideosListPage() {
 
   const fetchVideos = async () => {
     setLoading(true)
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('studioz_videos')
       .select('*')
       .order('display_order', { ascending: true })
 
-    if (!error && data && data.length > 0) {
-      setVideos(data as VideoRow[])
-      try {
-        localStorage.setItem('kr_studioz_videos', JSON.stringify(data))
-      } catch (e) {
-        // ignore
-      }
-    } else {
-      // Check localStorage fallback
-      try {
-        const saved = localStorage.getItem('kr_studioz_videos')
-        if (saved) {
-          const parsed = JSON.parse(saved)
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setVideos(parsed)
-            setLoading(false)
-            return
-          }
-        }
-      } catch (e) {
-        // ignore
-      }
-      setVideos(FALLBACK_STUDIOZ_VIDEOS.map((v, i) => ({ ...v, is_active: true, display_order: i + 1 })))
-    }
+    setVideos((data as VideoRow[]) || [])
     setLoading(false)
   }
 

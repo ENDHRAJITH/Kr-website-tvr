@@ -1,41 +1,27 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
+import { verifyAdminJWT } from '@/lib/auth/jwt'
 
 export async function middleware(request: NextRequest) {
-  const response = NextResponse.next()
+  const { pathname } = request.nextUrl
+  const isLoginPage = pathname === '/admin/login'
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
+  const jwtToken = request.cookies.get('kr_admin_jwt')?.value
+  const isValidJWT = jwtToken ? await verifyAdminJWT(jwtToken) : null
 
-  const supabase = createServerClient(
-    url,
-    key,
-    {
-      cookies: {
-        getAll: () => request.cookies.getAll(),
-        setAll: (list) => list.forEach(({ name, value }) =>
-          response.cookies.set(name, value)
-        ),
-      },
-    }
-  )
-
-  const isLoginPage = request.nextUrl.pathname === '/admin/login'
-  const hasAdminCookie = request.cookies.get('kr_admin_session')?.value === 'true'
-
-  // If env vars are placeholder or has admin cookie, allow access
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || hasAdminCookie) {
-    return response
+  // If user is trying to access /admin routes without a valid JWT session, redirect to /admin/login
+  if (!isLoginPage && !isValidJWT) {
+    const loginUrl = new URL('/admin/login', request.url)
+    return NextResponse.redirect(loginUrl)
   }
 
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user && request.nextUrl.pathname.startsWith('/admin') && !isLoginPage) {
-    return NextResponse.redirect(new URL('/admin/login', request.url))
+  // If user is already authenticated with a valid JWT and visits /admin/login, redirect to /admin
+  if (isLoginPage && isValidJWT) {
+    const adminUrl = new URL('/admin', request.url)
+    return NextResponse.redirect(adminUrl)
   }
 
-  return response
+  return NextResponse.next()
 }
 
 export const config = {

@@ -29,6 +29,26 @@ export default function PdfUploader({
 
     try {
       const file = files[0]
+
+      // 1. Try local server endpoint first
+      try {
+        const formData = new FormData()
+        formData.append('file', file)
+        const res = await fetch('/api/admin/upload-file', {
+          method: 'POST',
+          body: formData,
+        })
+        const data = await res.json()
+        if (data?.url) {
+          onChange(data.url)
+          setUploading(false)
+          return
+        }
+      } catch (e) {
+        console.warn('Local file upload API failed, trying fallback...', e)
+      }
+
+      // 2. Try Cloudinary if available
       const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
       const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
 
@@ -49,7 +69,7 @@ export default function PdfUploader({
         }
       }
 
-      // Fallback: Convert to Data URL / Object URL
+      // 3. Fallback: Convert to Data URL
       const reader = new FileReader()
       reader.onload = () => {
         onChange(reader.result as string)

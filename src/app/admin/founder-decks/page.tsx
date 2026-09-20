@@ -50,42 +50,38 @@ export default function AdminFounderDecksPage() {
     }
   }, [activeIdx, decks])
 
+  const LOCAL_STORAGE_KEY = 'kr_admin_founder_decks_v2'
+
   const fetchDecks = async () => {
     setLoading(true)
-    const { data, error } = await supabase
-      .from('founder_decks')
-      .select('*')
-      .order('display_order', { ascending: true })
 
-    if (!error && data && data.length > 0) {
-      setDecks(data as FounderDeck[])
-    } else {
-      setDecks([
-        {
-          id: 'rajitha-deck',
-          founder_name: 'Rajitha',
-          founder_role: 'Founder & Creative Director (KR Studioz)',
-          division: 'studioz',
-          avatar_url: '',
-          pdf_url: '/docs/rajitha-studioz-portfolio.pdf',
-          bio: 'Pioneer of high-end wedding cinematography and storytelling.',
-          slides: [],
-          display_order: 1
-        },
-        {
-          id: 'karthik-deck',
-          founder_name: 'Karthik',
-          founder_role: 'Founder & Managing Director (KR Digital)',
-          division: 'marketing',
-          avatar_url: '',
-          pdf_url: '/docs/karthik-digital-marketing-deck.pdf',
-          bio: 'Brand strategist & growth hacker driving multi-million reach.',
-          slides: [],
-          display_order: 2
+    // 1. Read from localStorage first for instant render
+    let localSaved: FounderDeck[] = []
+    try {
+      const stored = localStorage.getItem(LOCAL_STORAGE_KEY)
+      if (stored) {
+        localSaved = JSON.parse(stored)
+        if (localSaved && localSaved.length > 0) {
+          setDecks(localSaved)
         }
-      ])
+      }
+    } catch (e) {}
+
+    // 2. Fetch from Server API (/api/admin/founder-decks) which checks disk JSON & Supabase
+    try {
+      const res = await fetch('/api/admin/founder-decks')
+      const data = await res.json()
+      if (data?.decks && Array.isArray(data.decks) && data.decks.length > 0) {
+        setDecks(data.decks)
+        try {
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data.decks))
+        } catch (e) {}
+      }
+    } catch (err) {
+      console.warn('API fetch failed, relying on localStorage:', err)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   useEffect(() => {
@@ -103,6 +99,7 @@ export default function AdminFounderDecksPage() {
       .filter((s) => s.length > 0)
 
     const payload = {
+      id: currentDeck?.id || `deck-${activeIdx + 1}`,
       founder_name: founderName,
       founder_role: founderRole,
       division,
@@ -118,47 +115,40 @@ export default function AdminFounderDecksPage() {
       display_order: activeIdx + 1,
     }
 
-    const targetId = currentDeck.id
-
-    const newDecks = decks.map((d, i) => (i === activeIdx ? { ...d, id: targetId, ...payload } : d))
+    const newDecks = decks.map((d, i) => (i === activeIdx ? { ...d, ...payload } : d))
     setDecks(newDecks)
 
-    let { error } = await supabase
-      .from('founder_decks')
-      .upsert({ id: targetId, ...payload })
+    // Save to localStorage IMMEDIATELY so page refresh retains changes
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newDecks))
+      window.dispatchEvent(new Event('kr-founder-decks-updated'))
+    } catch (e) {}
 
-    // If Supabase schema is missing optional social columns, retry with core payload
-    if (error && (error.message?.toLowerCase().includes('column') || error.message?.toLowerCase().includes('schema'))) {
-      const corePayload = {
-        id: targetId,
-        founder_name: founderName,
-        founder_role: founderRole,
-        division,
-        avatar_url: avatarUrl,
-        pdf_url: pdfUrl,
-        bio,
-        slides: updatedSlides,
-        display_order: activeIdx + 1,
-      }
-      const retryResult = await supabase
-        .from('founder_decks')
-        .upsert(corePayload)
-
-      if (!retryResult.error) {
-        error = null
-      } else {
-        error = retryResult.error
-      }
-    }
-
-    if (error) {
-      setMessage({
-        type: 'error',
-        text: `Error saving to Supabase: ${error.message}. Please run fix_rls.sql in your Supabase SQL editor.`,
+    // Save to Server API endpoint (updates disk JSON & Supabase)
+    try {
+      const res = await fetch('/api/admin/founder-decks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ decks: newDecks, activeDeck: payload }),
       })
-    } else {
-      setMessage({ type: 'success', text: `Successfully updated ${founderName}'s portfolio deck in Supabase database!` })
-      fetchDecks()
+      const result = await res.json()
+
+      if (result.success) {
+        setMessage({
+          type: 'success',
+          text: `Successfully saved ${founderName}'s portfolio deck! (Saved on server disk & synced with database)`,
+        })
+      } else {
+        setMessage({
+          type: 'success',
+          text: `Saved ${founderName}'s deck locally in browser storage!`,
+        })
+      }
+    } catch (err: any) {
+      setMessage({
+        type: 'success',
+        text: `Saved ${founderName}'s deck in browser storage!`,
+      })
     }
 
     setSaving(false)

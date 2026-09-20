@@ -52,38 +52,23 @@ export default function MarketingServicesListPage() {
     {
       header: 'No.',
       accessorKey: 'service_no',
-      cell: (row) => <span className="font-mono text-zinc-400">#{row.service_no ?? '-'}</span>,
+      cell: (row) => <span className="font-mono text-zinc-400 font-bold whitespace-nowrap">#{row.service_no ?? '-'}</span>,
     },
     {
-      header: 'Name',
+      header: 'Plan / Package Name',
       accessorKey: 'name',
       cell: (row) => (
-        <div>
-          <p className="font-semibold text-white">{row.name}</p>
-          {row.subtitle && <p className="text-xs text-zinc-400">{row.subtitle}</p>}
+        <div className="space-y-1 max-w-sm">
+          <p className="font-bold text-white text-sm leading-tight">{row.name}</p>
+          {row.subtitle && <p className="text-xs text-zinc-400 leading-snug">{row.subtitle}</p>}
         </div>
       ),
     },
     {
-      header: 'Category',
-      cell: (row) => row.service_categories?.name || <span className="text-zinc-600">Uncategorized</span>,
-    },
-    {
-      header: 'Price',
-      cell: (row) =>
-        row.price ? (
-          <span className="font-medium text-emerald-400">
-            {row.price} <span className="text-zinc-500 text-xs">{row.price_unit}</span>
-          </span>
-        ) : (
-          <span className="text-zinc-600">Custom</span>
-        ),
-    },
-    {
-      header: 'Tag',
+      header: 'Project Tag',
       cell: (row) =>
         row.project_tag ? (
-          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-800 text-orange-400 border border-zinc-700">
+          <span className="inline-block whitespace-nowrap px-2.5 py-1 rounded-lg text-xs font-bold font-mono bg-orange-500/10 text-orange-400 border border-orange-500/20">
             {row.project_tag}
           </span>
         ) : (
@@ -91,14 +76,34 @@ export default function MarketingServicesListPage() {
         ),
     },
     {
+      header: 'Price Rate',
+      cell: (row) =>
+        row.price ? (
+          <div className="whitespace-nowrap font-bold text-orange-400 font-mono text-sm">
+            {row.price} <span className="text-zinc-500 text-xs font-normal">{row.price_unit}</span>
+          </div>
+        ) : (
+          <span className="text-zinc-600">Custom Quote</span>
+        ),
+    },
+    {
+      header: 'Features / Highlights',
+      cell: (row) => (
+        <span className="whitespace-nowrap text-xs text-zinc-300 font-semibold">
+          {row.features ? `${row.features.length} Features Included` : '0 Items'}
+        </span>
+      ),
+    },
+    {
       header: 'Order',
       accessorKey: 'display_order',
+      cell: (row) => <span className="font-mono font-bold text-zinc-300">#{row.display_order}</span>,
     },
     {
       header: 'Status',
       cell: (row) => (
         <span
-          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${
+          className={`inline-flex items-center whitespace-nowrap px-2.5 py-1 rounded-full text-xs font-semibold border ${
             row.is_active
               ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
               : 'bg-zinc-800 text-zinc-500 border-zinc-700'

@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
 let inMemorySettings: Record<string, string> = {
-  home_hero_image_url: '/f11.png',
+  home_hero_image_url: '/images/kr-founders-hero.png',
   home_hero_image_scale: '100',
 }
 

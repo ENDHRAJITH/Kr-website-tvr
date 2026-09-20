@@ -48,6 +48,7 @@ export default function Navbar() {
 
   const navLinks = [
     { name: 'Home', href: '/' },
+    { name: 'Why Choose Us', href: '/why-choose-us' },
     { name: 'About', href: '/about' },
     { name: 'Studioz', href: '/studioz' },
     { name: 'Digital Marketing', href: '/digital-marketing' },
@@ -57,13 +58,12 @@ export default function Navbar() {
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/'
-    if (href.startsWith('/#')) return false
     return pathname === href || pathname.startsWith(href + '/')
   }
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 px-4 md:px-6 pt-4">
-      <nav className={`max-w-7xl mx-auto flex items-center justify-between px-5 md:px-7 py-4 border backdrop-blur-xl transition-colors duration-500 shadow-sm ${
+    <header suppressHydrationWarning className="fixed top-0 left-0 w-full z-50 px-4 md:px-6 pt-4">
+      <nav suppressHydrationWarning className={`max-w-7xl mx-auto flex items-center justify-between px-5 md:px-7 py-4 border backdrop-blur-xl transition-colors duration-500 shadow-sm ${
         isDarkMode
           ? 'bg-zinc-950/90 text-white border-white/10'
           : 'bg-white/90 text-slate-900 border-[#FDE7D3]'

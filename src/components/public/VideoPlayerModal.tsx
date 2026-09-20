@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { extractYouTubeId } from '@/lib/utils/media'
 
 interface VideoPlayerModalProps {
   videoUrl: string | null
@@ -17,11 +18,11 @@ export default function VideoPlayerModal({ videoUrl, title, onClose }: VideoPlay
 
     const trimmed = videoUrl.trim()
 
-    // 1. YouTube check
-    const ytMatch = trimmed.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/)
-    if (ytMatch && ytMatch[1]) {
+    // 1. YouTube check (Supports short links, shorts, live, standard watch links, and 11-char IDs)
+    const ytId = extractYouTubeId(trimmed)
+    if (ytId) {
       setEmbedType('youtube')
-      setEmbedSrc(`https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1&rel=0`)
+      setEmbedSrc(`https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&rel=0`)
       return
     }
 

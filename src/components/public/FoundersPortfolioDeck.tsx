@@ -34,18 +34,29 @@ export default function FoundersPortfolioDeck({
   const supabase = createClient()
   const [fetchedDecks, setFetchedDecks] = useState<FounderDeck[]>([])
 
+  const LOCAL_STORAGE_KEY = 'kr_admin_founder_decks_v2'
+
   useEffect(() => {
     const fetchDecksAndTeam = async () => {
       try {
-        const [decksRes, teamRes] = await Promise.all([
-          supabase.from('founder_decks').select('*').order('display_order', { ascending: true }),
+        let localDecks: FounderDeck[] = []
+        try {
+          const stored = localStorage.getItem(LOCAL_STORAGE_KEY)
+          if (stored) localDecks = JSON.parse(stored)
+        } catch (e) {}
+
+        const [apiRes, teamRes] = await Promise.all([
+          fetch('/api/admin/founder-decks').then((r) => r.json()).catch(() => ({ decks: [] })),
           supabase.from('team_members').select('*').order('display_order', { ascending: true }),
         ])
 
-        const decksData = (decksRes.data as FounderDeck[]) || []
+        const apiDecks = (apiRes?.decks as FounderDeck[]) || []
         const teamData = (teamRes.data as TeamMember[]) || []
 
-        const baseDecks = propDecks && propDecks.length > 0 ? propDecks : decksData
+        let baseDecks = propDecks && propDecks.length > 0 ? propDecks : apiDecks
+        if (baseDecks.length === 0 && localDecks.length > 0) {
+          baseDecks = localDecks
+        }
 
         if (baseDecks.length > 0) {
           const enrichedDecks: FounderDeck[] = baseDecks.map((deck) => {
@@ -91,6 +102,10 @@ export default function FoundersPortfolioDeck({
     }
 
     fetchDecksAndTeam()
+
+    const handleUpdate = () => fetchDecksAndTeam()
+    window.addEventListener('kr-founder-decks-updated', handleUpdate)
+    return () => window.removeEventListener('kr-founder-decks-updated', handleUpdate)
   }, [propDecks, supabase])
 
   const activeDecks = (propDecks && propDecks.length > 0) ? propDecks : fetchedDecks
@@ -151,36 +166,72 @@ export default function FoundersPortfolioDeck({
           </p>
         </div>
 
-        {/* Founder Tabs Switcher */}
-        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+        {/* Founder Tabs Switcher — LEFT & RIGHT PROMINENT SPLIT BOXES */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-4xl mx-auto">
           {activeDecks.map((deck, idx) => {
             const isActive = idx === activeFounderIndex
+            const isLeft = idx === 0
+            const avatarSrc = deck.avatar_url || (isLeft ? '/rajitha.png' : '/karthik.png')
+
             return (
               <button
-                key={deck.id}
+                key={deck.id || idx}
+                type="button"
                 onClick={() => handleFounderChange(idx)}
-                className={`flex items-center gap-3 px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer border ${
+                className={`p-5 sm:p-6 rounded-2xl transition-all duration-300 cursor-pointer border text-left flex items-center gap-4 relative overflow-hidden group ${
                   isActive
-                    ? 'bg-orange-500 text-black border-orange-400 shadow-lg shadow-orange-500/25 scale-[1.02]'
+                    ? 'bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 text-black border-2 border-orange-300 shadow-2xl shadow-orange-500/30 scale-[1.02]'
                     : isDarkMode
-                    ? 'bg-zinc-900/90 text-zinc-300 border-zinc-800 hover:border-zinc-700 hover:text-white'
-                    : 'bg-white text-zinc-700 border-zinc-200 hover:border-zinc-300 hover:text-zinc-900 shadow-sm'
+                    ? 'bg-zinc-900/90 text-white border-zinc-800 hover:border-orange-500/60 hover:bg-zinc-900'
+                    : 'bg-white text-zinc-900 border-zinc-200 hover:border-orange-500/60 shadow-md'
                 }`}
               >
-                {deck.avatar_url ? (
-                  <img
-                    src={deck.avatar_url}
-                    alt={deck.founder_name}
-                    className="w-7 h-7 rounded-full object-cover border border-black/20"
-                  />
-                ) : (
-                  <UserCheck className="w-4 h-4" />
-                )}
-                <div className="text-left">
-                  <div className="leading-tight">{deck.founder_name}'s Deck</div>
-                  <div className={`text-[10px] font-medium opacity-80 truncate max-w-[150px]`}>
-                    {deck.division === 'studioz' ? 'KR Studioz Founder' : 'KR Digital Founder'}
+                {/* Active Indicator Glow Badge */}
+                {isActive && (
+                  <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-black/20 text-black text-[10px] font-black uppercase tracking-wider">
+                    <span className="w-2 h-2 rounded-full bg-black animate-pulse" />
+                    <span>Active Deck</span>
                   </div>
+                )}
+
+                {/* Big Avatar Photo */}
+                <div className="relative shrink-0">
+                  <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden border-2 shadow-lg flex items-center justify-center ${
+                    isActive ? 'border-black/30 bg-black/10' : 'border-orange-500/40 bg-zinc-950'
+                  }`}>
+                    {avatarSrc ? (
+                      <img
+                        src={avatarSrc}
+                        alt={deck.founder_name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          // Fallback initials if image fails to load
+                          ;(e.target as HTMLElement).style.display = 'none'
+                        }}
+                      />
+                    ) : (
+                      <UserCheck className={`w-7 h-7 ${isActive ? 'text-black' : 'text-orange-500'}`} />
+                    )}
+                  </div>
+                </div>
+
+                {/* Founder Info */}
+                <div className="min-w-0 flex-1">
+                  <span className={`text-[10px] font-extrabold uppercase tracking-widest block mb-1 ${
+                    isActive ? 'text-black/80' : 'text-orange-500'
+                  }`}>
+                    {deck.division === 'studioz' ? '📷 KR Studioz Founder' : '🚀 KR Digital Founder'}
+                  </span>
+                  <h3 className={`font-display text-xl sm:text-2xl font-black uppercase tracking-tight truncate ${
+                    isActive ? 'text-black' : isDarkMode ? 'text-white' : 'text-zinc-900'
+                  }`}>
+                    {deck.founder_name}&apos;s Deck
+                  </h3>
+                  <p className={`text-xs mt-0.5 truncate font-medium ${
+                    isActive ? 'text-black/75' : isDarkMode ? 'text-zinc-400' : 'text-zinc-600'
+                  }`}>
+                    {deck.founder_role || (deck.division === 'studioz' ? 'Creative Director' : 'Managing Director')}
+                  </p>
                 </div>
               </button>
             )

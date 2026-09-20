@@ -2,286 +2,221 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { StudiozService, ServiceCategory } from '@/types/database'
+import { StudiozService, ServiceCategory, WeddingPackage } from '@/types/database'
 import StudiozVideoHero from './StudiozVideoHero'
 import { StudiozVideoItem } from './StudiozVideoMarquee'
 import { useTheme } from '@/context/ThemeContext'
 import { getMediaType, getYouTubeEmbedUrl, getInstagramEmbedUrl } from '@/lib/utils/media'
-import { Play, Video } from 'lucide-react'
+import { Play, Video, Check, Sparkles, Plus, Star, ShieldCheck, Camera } from 'lucide-react'
 
 interface StudiozViewProps {
   initialServices?: StudiozService[]
   categories?: ServiceCategory[]
   videoShowcases?: StudiozVideoItem[]
+  weddingPackages?: WeddingPackage[]
 }
 
+// --------------------------------------------------------------------------
+// WEDDING PACKAGES INTERFACE & STATIC FALLBACK DATA
+// --------------------------------------------------------------------------
+interface WeddingPlan {
+  id: string
+  planCode: 'A' | 'B' | 'C'
+  name: string
+  tagline: string
+  price: string
+  isPopular?: boolean
+  isUltra?: boolean
+  photoTypes: string[]
+  deliverables: string[]
+  heroImage: string
+  galleryUrls?: string[]
+}
 
-const FALLBACK_SERVICES: StudiozService[] = [
-  {
-    id: 's1',
-    service_no: 1,
-    name: 'Wedding Photography',
-    category_id: 'wedding',
-    label: 'Wedding',
-    price: '₹ XX,XXX onwards',
-    description: 'Complete wedding photography coverage designed to preserve every important moment of your celebration.',
-    icon: 'camera',
-    hero_image_url: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1600&q=85',
-    cover_points: ['Bride & Groom', 'Candid Moments', 'Family Portraits', 'Wedding Rituals', 'Guest Moments', 'Details & Decorations'],
-    gallery_urls: [
-      'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1000&q=85',
-      'https://images.unsplash.com/photo-1606800052052-a08af7148866?auto=format&fit=crop&w=1000&q=85',
-      'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1000&q=85',
-      'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1000&q=85'
-    ],
-    display_order: 1,
-    is_active: true
-  },
-  {
-    id: 's2',
-    service_no: 2,
-    name: 'Pre-Wedding Shoot',
-    category_id: 'wedding',
-    label: 'Wedding',
-    price: '₹ XX,XXX onwards',
-    description: 'A creative pre-wedding session built around your story, location and personality.',
-    icon: 'heart',
-    hero_image_url: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=1600&q=85',
-    cover_points: ['Location Planning', 'Couple Portraits', 'Creative Concepts', 'Candid Frames', 'Edited Images', 'Highlight Reel'],
-    gallery_urls: [
-      'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=1000&q=85',
-      'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=1000&q=85',
-      'https://images.unsplash.com/photo-1518621736915-f3b1c41bfd00?auto=format&fit=crop&w=1000&q=85'
-    ],
-    display_order: 2,
-    is_active: true
-  },
-  {
-    id: 's3',
-    service_no: 3,
-    name: 'Reception Coverage',
-    category_id: 'wedding',
-    label: 'Wedding',
-    price: '₹ XX,XXX onwards',
-    description: 'Elegant reception coverage focused on entrances, stage performances, family and celebratory moments.',
-    icon: 'spark',
-    hero_image_url: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1600&q=85',
-    cover_points: ['Stage & Decor', 'Couple Entry', 'Family Moments', 'Candid Coverage', 'Performances', 'Reception Film'],
-    gallery_urls: [
-      'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1000&q=85',
-      'https://images.unsplash.com/photo-1507504031003-b417219a0fde?auto=format&fit=crop&w=1000&q=85'
-    ],
-    display_order: 3,
-    is_active: true
-  },
-  {
-    id: 's4',
-    service_no: 4,
-    name: 'Nikkah Ceremony',
-    category_id: 'wedding',
-    label: 'Wedding',
-    price: '₹ XX,XXX onwards',
-    description: 'Thoughtful coverage of the Nikkah ceremony, portraits, traditional rituals and family celebrations.',
-    icon: 'moon',
-    hero_image_url: 'https://images.unsplash.com/photo-1544078751-58fee2d8a03b?auto=format&fit=crop&w=1600&q=85',
-    cover_points: ['Ceremony Coverage', 'Couple Portraits', 'Family Frames', 'Candid Moments', 'Details', 'Highlight Film'],
-    gallery_urls: [
-      'https://images.unsplash.com/photo-1544078751-58fee2d8a03b?auto=format&fit=crop&w=1000&q=85',
-      'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1000&q=85'
-    ],
-    display_order: 4,
-    is_active: true
-  },
-  {
-    id: 's5',
-    service_no: 5,
-    name: 'Baby & Kids Photography',
-    category_id: 'baby',
-    label: 'Baby',
-    price: '₹ X,XXX onwards',
-    description: 'Gentle, creative baby photography focused on natural expressions and beautiful family details.',
-    icon: 'baby',
-    hero_image_url: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=1600&q=85',
-    cover_points: ['Baby Portraits', 'Creative Setups', 'Family Frames', 'Detail Shots', 'Edited Photos', 'Short Reels'],
-    gallery_urls: [
-      'https://images.unsplash.com/photo-1519689680058-324335c77eba?auto=format&fit=crop&w=1000&q=85',
-      'https://images.unsplash.com/photo-1504159506876-f8338247a14a?auto=format&fit=crop&w=1000&q=85'
-    ],
-    display_order: 5,
-    is_active: true
-  },
-  {
-    id: 's6',
-    service_no: 6,
-    name: 'Birthday Celebrations',
-    category_id: 'events',
-    label: 'Events',
-    price: '₹ X,XXX onwards',
-    description: 'Fun and energetic coverage of birthdays, from decorations and arrivals to cake cutting celebrations.',
-    icon: 'cake',
-    hero_image_url: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=1600&q=85',
-    cover_points: ['Decorations', 'Cake Cutting', 'Family', 'Candid Moments', 'Group Photos', 'Event Highlights'],
-    gallery_urls: [
-      'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=1000&q=85',
-      'https://images.unsplash.com/photo-1464349153735-7db50ed83c84?auto=format&fit=crop&w=1000&q=85'
-    ],
-    display_order: 6,
-    is_active: true
-  },
-  {
-    id: 's7',
-    service_no: 7,
-    name: 'Baby Shower & Valaikappu',
-    category_id: 'baby',
-    label: 'Baby',
-    price: '₹ X,XXX onwards',
-    description: 'Capture the joy, family and beautiful traditional details of a baby shower celebration.',
-    icon: 'gift',
-    hero_image_url: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=1600&q=85',
-    cover_points: ['Decor', 'Parents-to-be', 'Family', 'Candid Moments', 'Traditional Ceremonies', 'Highlights'],
-    gallery_urls: [
-      'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=1000&q=85',
-      'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1000&q=85'
-    ],
-    display_order: 7,
-    is_active: true
-  },
-  {
-    id: 's8',
-    service_no: 8,
-    name: 'Naming Ceremony',
-    category_id: 'ceremonies',
-    label: 'Ceremonies',
-    price: '₹ X,XXX onwards',
-    description: "A warm visual record of your family's naming ceremony and traditional rituals.",
-    icon: 'flower',
-    hero_image_url: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=1600&q=85',
-    cover_points: ['Ceremony', 'Baby Moments', 'Family', 'Traditional Details', 'Portraits', 'Event Highlights'],
-    gallery_urls: [
-      'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=1000&q=85',
-      'https://images.unsplash.com/photo-1504159506876-f8338247a14a?auto=format&fit=crop&w=1000&q=85'
-    ],
-    display_order: 8,
-    is_active: true
-  },
-  {
-    id: 's9',
-    service_no: 9,
-    name: 'Puberty Ceremony',
-    category_id: 'ceremonies',
-    label: 'Ceremonies',
-    price: '₹ XX,XXX onwards',
-    description: 'Respectful photography and film coverage for traditional family puberty celebrations.',
-    icon: 'flower',
-    hero_image_url: 'https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&w=1600&q=85',
-    cover_points: ['Ceremony Coverage', 'Family Portraits', 'Traditional Moments', 'Candid Frames', 'Details', 'Highlights'],
-    gallery_urls: [
-      'https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&w=1000&q=85'
-    ],
-    display_order: 9,
-    is_active: true
-  },
-  {
-    id: 's10',
-    service_no: 10,
-    name: 'Sathabishegam & Ceremonies',
-    category_id: 'ceremonies',
-    label: 'Ceremonies',
-    price: '₹ XX,XXX onwards',
-    description: 'Preserve the spiritual, family and celebratory traditional moments of a Sathabishegam.',
-    icon: 'flower',
-    hero_image_url: 'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1600&q=85',
-    cover_points: ['Ceremony', 'Family', 'Traditional Details', 'Portraits', 'Candid Moments', 'Highlight Film'],
-    gallery_urls: [
-      'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1000&q=85'
-    ],
-    display_order: 10,
-    is_active: true
-  },
-  {
-    id: 's11',
-    service_no: 11,
-    name: '60th Marriage (Sasthi Poorthi)',
-    category_id: 'ceremonies',
-    label: 'Ceremonies',
-    price: '₹ XX,XXX onwards',
-    description: 'Celebrate a lifetime milestone with a timeless visual story of family, tradition and togetherness.',
-    icon: 'rings',
-    hero_image_url: 'https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=1600&q=85',
-    cover_points: ['Couple Portraits', 'Family', 'Ceremony', 'Candid Moments', 'Details', 'Highlights'],
-    gallery_urls: [
-      'https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=1000&q=85'
-    ],
-    display_order: 11,
-    is_active: true
-  },
-  {
-    id: 's12',
-    service_no: 12,
-    name: 'Model & Fashion Shoot',
-    category_id: 'portraits',
-    label: 'Portraits',
-    price: '₹ X,XXX onwards',
-    description: 'Creative portrait and model shoots with direction, lighting and polished final visuals.',
-    icon: 'user',
-    hero_image_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1600&q=85',
-    cover_points: ['Creative Direction', 'Portraits', 'Lighting', 'Multiple Looks', 'Retouching', 'Social Formats'],
-    gallery_urls: [
-      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1000&q=85',
-      'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=1000&q=85'
-    ],
-    display_order: 12,
-    is_active: true
-  },
-  {
-    id: 's13',
-    service_no: 13,
-    name: 'Commercial Product Shoot',
-    category_id: 'commercial',
-    label: 'Commercial',
-    price: '₹ X,XXX onwards',
-    description: 'Clean, high-converting product visuals for brands, catalogues and digital marketing.',
-    icon: 'box',
-    hero_image_url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1600&q=85',
-    cover_points: ['Product Styling', 'Studio Lighting', 'Multiple Angles', 'Retouching', 'Catalogue Images', 'Social Creatives'],
-    gallery_urls: [
-      'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1000&q=85',
-      'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1000&q=85'
-    ],
-    display_order: 13,
-    is_active: true
-  },
-  {
-    id: 's14',
-    service_no: 14,
-    name: 'Live Multi-Cam Broadcasting',
-    category_id: 'live',
-    label: 'Live',
-    price: '₹ XX,XXX onwards',
-    description: 'Professional 4K multi-camera live broadcasting for grand weddings, ceremonies and corporate events.',
-    icon: 'live',
-    hero_image_url: 'https://images.unsplash.com/photo-1598387993281-cecf8b71a8f8?auto=format&fit=crop&w=1600&q=85',
-    cover_points: ['Multi-camera Setup', 'Live Switching', 'High Quality Audio', 'Streaming Setup', 'Event Monitoring', 'Live Support'],
-    gallery_urls: [
-      'https://images.unsplash.com/photo-1598387993281-cecf8b71a8f8?auto=format&fit=crop&w=1000&q=85'
-    ],
-    display_order: 14,
-    is_active: true
-  }
-]
+interface WeddingReligionCategory {
+  id: string
+  name: string
+  badge: string
+  subtitle: string
+  plans: WeddingPlan[]
+}
 
 export default function StudiozView({
   initialServices = [],
   categories = [],
-  videoShowcases = []
+  videoShowcases = [],
+  weddingPackages = []
 }: StudiozViewProps) {
-  const { isDarkMode, toggleTheme } = useTheme()
+  const { isDarkMode } = useTheme()
+  const [selectedReligion, setSelectedReligion] = useState<string>('hindu')
   const [activeFilter, setActiveFilter] = useState<string>('all')
   const [detailService, setDetailService] = useState<StudiozService | null>(null)
   const [lightboxImg, setLightboxImg] = useState<string | null>(null)
   const [addedNotice, setAddedNotice] = useState<string | null>(null)
 
   const services = initialServices ?? []
+
+  // --------------------------------------------------------------------------
+  // DYNAMIC DATABASE MAPPING FOR 3 WEDDING CATEGORIES & 3 PLANS PER CATEGORY
+  // --------------------------------------------------------------------------
+  const religionDefs = [
+    { id: 'hindu', name: 'Hindu Wedding', badge: 'Traditional Rituals & Celebrations', subtitle: 'Nalangu, Haldi, Mehendi, Sangeet, Nichayathartham, Muhurtham & Reception Coverage' },
+    { id: 'christian', name: 'Christian Wedding', badge: 'Holy Matrimony & Receptions', subtitle: 'Engagement, Bridal Shower, Church Ceremony, Choir & Grand Reception Coverage' },
+    { id: 'muslim', name: 'Muslim Wedding', badge: 'Nikah & Walima Celebrations', subtitle: 'Engagement, Mehendi, Sacred Nikkah, Groom Procession & Walima Reception' }
+  ]
+
+  const dynamicWeddingReligions: WeddingReligionCategory[] = religionDefs.map((def) => {
+    // 1. Fetch from wedding_packages table
+    const tableItems = (weddingPackages || []).filter(
+      (wp) => wp.religion?.toLowerCase() === def.id.toLowerCase()
+    )
+
+    if (tableItems.length > 0) {
+      tableItems.sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))
+
+      const plans: WeddingPlan[] = tableItems.map((item) => ({
+        id: item.id,
+        planCode: (item.plan_code || 'A') as 'A' | 'B' | 'C',
+        name: item.plan_name,
+        tagline: item.tagline || '',
+        price: item.price,
+        isPopular: item.is_popular || Boolean(item.badge && item.badge.toLowerCase().includes('popular')),
+        isUltra: item.is_ultra || Boolean(item.badge && item.badge.toLowerCase().includes('vip')),
+        heroImage: item.hero_image_url || 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1000&q=85',
+        photoTypes: item.photo_video_inclusions || [],
+        deliverables: item.deliverables_inclusions || [],
+        galleryUrls: item.gallery_urls || []
+      }))
+
+      return {
+        id: def.id,
+        name: def.name,
+        badge: def.badge,
+        subtitle: def.subtitle,
+        plans
+      }
+    }
+
+    // 2. Fallback to studioz_services table
+    const dbItems = services.filter((s) => {
+      const lbl = (s.label || '').toLowerCase()
+      const catObjName = ((s as any).service_categories?.name || '').toLowerCase()
+      const nm = (s.name || '').toLowerCase()
+      const searchKey = def.id
+      return lbl.includes(searchKey) || catObjName.includes(searchKey) || nm.includes(searchKey)
+    })
+
+    if (dbItems.length > 0) {
+      dbItems.sort((a, b) => (a.display_order ?? 0) - (b.display_order ?? 0))
+
+      const plans: WeddingPlan[] = dbItems.map((item, idx) => {
+        const planCode: 'A' | 'B' | 'C' = idx === 0 ? 'A' : idx === 1 ? 'B' : 'C'
+        const coverPoints = item.cover_points || []
+        const photoTypes = coverPoints.filter((pt) =>
+          /photo|video|shoot|retouch/i.test(pt) && !/album|bag|drive|frame|calendar|led|output|poster/i.test(pt)
+        )
+        const deliverables = coverPoints.filter((pt) => !photoTypes.includes(pt))
+
+        return {
+          id: item.id,
+          planCode,
+          name: item.name,
+          tagline: item.description || '',
+          price: item.price || 'Custom Quote',
+          isPopular: planCode === 'B' || item.price?.includes('65,000'),
+          isUltra: planCode === 'C' || item.price?.includes('90,000'),
+          heroImage: item.hero_image_url || 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1000&q=85',
+          photoTypes: photoTypes.length > 0 ? photoTypes : coverPoints,
+          deliverables: deliverables.length > 0 ? deliverables : []
+        }
+      })
+
+      return {
+        id: def.id,
+        name: def.name,
+        badge: def.badge,
+        subtitle: def.subtitle,
+        plans
+      }
+    }
+
+    return { id: def.id, name: def.name, badge: def.badge, subtitle: def.subtitle, plans: [] }
+  })
+
+  const currentReligionObj = dynamicWeddingReligions.find((r) => r.id === selectedReligion) || dynamicWeddingReligions[0]
+
+  // --------------------------------------------------------------------------
+  // DYNAMIC DATABASE MAPPING FOR SPECIAL PACKAGES
+  // --------------------------------------------------------------------------
+  const specialDbItems = services.filter((s) => {
+    const catName = ((s as any).service_categories?.name || '').toLowerCase()
+    const catSlug = ((s as any).service_categories?.slug || '').toLowerCase()
+    const label = (s.label || '').toLowerCase()
+    const catId = (s.category_id || '').toLowerCase()
+
+    return (
+      catId === '44444444-4444-4444-a444-444444444444' ||
+      catName.includes('special') ||
+      catSlug.includes('special') ||
+      catName.includes('function') ||
+      label.includes('events')
+    )
+  })
+
+  const dynamicSpecialPackages = specialDbItems.map((item) => {
+    let icon = item.icon || '✨'
+    const nm = item.name.toLowerCase()
+    if (nm.includes('engagement') || nm.includes('ring')) icon = '💍'
+    else if (nm.includes('reception') || nm.includes('stage')) icon = '🥂'
+    else if (nm.includes('birthday') || nm.includes('party')) icon = '🎂'
+    else if (nm.includes('opening') || nm.includes('grand')) icon = '🏬'
+    else if (nm.includes('baby')) icon = '👶'
+
+    return {
+      id: item.id,
+      name: item.name,
+      subtitle: item.description || '',
+      price: item.price || 'Custom Quote',
+      icon,
+      heroImage: item.hero_image_url || '',
+      items: item.cover_points && item.cover_points.length > 0 ? item.cover_points : [item.description || '']
+    }
+  })
+
+  // --------------------------------------------------------------------------
+  // DYNAMIC DATABASE MAPPING FOR ADD-ON SERVICES
+  // --------------------------------------------------------------------------
+  const addonDbItems = services.filter((s) => {
+    const catName = ((s as any).service_categories?.name || '').toLowerCase()
+    const catSlug = ((s as any).service_categories?.slug || '').toLowerCase()
+    const label = (s.label || '').toLowerCase()
+    const catId = (s.category_id || '').toLowerCase()
+
+    return (
+      catId === '77777777-7777-4777-a777-777777777777' ||
+      catName.includes('add-on') ||
+      catName.includes('addon') ||
+      catSlug.includes('add-on') ||
+      label.includes('add-on') ||
+      label.includes('addon')
+    )
+  })
+
+  const dynamicAddonServices = addonDbItems.map((item) => {
+    let icon = item.icon || '✨'
+    if (icon === 'ring') icon = '💍'
+    if (icon === 'sparkles') icon = '✨'
+    if (icon === 'framed_picture') icon = '🖼️'
+    if (icon === 'briefcase') icon = '💼'
+
+    return {
+      id: item.id,
+      name: item.name,
+      category: item.label || (item as any).service_categories?.name || 'Add-on',
+      price: item.price || 'Popular Add-on',
+      icon: icon
+    }
+  })
 
   const catList = categories && categories.length > 0
     ? [{ id: 'all', slug: 'all', name: 'All Services', division: 'studioz', display_order: 0 }, ...categories]
@@ -331,22 +266,22 @@ export default function StudiozView({
     })
   })
 
-  const handleAddToCart = (s: StudiozService) => {
+  const handleAddToCart = (item: { id: string; name: string; price?: string | null }) => {
     const CART_KEY = 'kr_global_enquiry_cart_v2'
     const stored = JSON.parse(localStorage.getItem(CART_KEY) || '[]')
-    const exists = stored.some((x: { name: string }) => x.name === s.name)
+    const exists = stored.some((x: { name: string }) => x.name === item.name)
     if (!exists) {
       stored.push({
-        id: s.id,
-        name: s.name,
-        price: s.price || 'Custom',
+        id: item.id,
+        name: item.name,
+        price: item.price || 'Custom Quote',
         division: 'studioz'
       })
       localStorage.setItem(CART_KEY, JSON.stringify(stored))
       window.dispatchEvent(new Event('kr-cart-update'))
     }
     window.dispatchEvent(new Event('kr-open-drawer'))
-    setAddedNotice(s.id)
+    setAddedNotice(item.id)
     setTimeout(() => setAddedNotice(null), 1500)
   }
 
@@ -358,231 +293,394 @@ export default function StudiozView({
       {/* 1. HERO VIDEO CAROUSEL SHOWCASE */}
       <StudiozVideoHero videos={videoShowcases} isDarkMode={isDarkMode} />
 
-      {/* 2. SERVICES SECTION */}
-      <section id="services" className={`px-4 sm:px-6 lg:px-8 py-20 md:py-28 transition-colors duration-500 border-b ${
-        isDarkMode ? 'bg-[#0a0a0a] border-white/10' : 'bg-slate-50 border-slate-200'
+      {/* =========================================================================
+          2. WEDDING PACKAGES SECTION (3 RELIGIONS × 3 PLANS) FROM DATABASE TABLE
+      ========================================================================= */}
+      <section id="wedding-packages" className={`px-4 sm:px-6 lg:px-8 py-20 md:py-28 border-b transition-colors duration-500 ${
+        isDarkMode ? 'bg-[#080808] border-white/10' : 'bg-slate-50 border-slate-200'
       }`}>
         <div className="max-w-7xl mx-auto">
-          {/* Section Header */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
-            <div>
-              <p className="text-[#F97316] text-xs font-bold uppercase tracking-[0.25em]">
-                01 / Discover Services
-              </p>
-              <h2 className={`font-display font-bold uppercase tracking-tight text-3xl sm:text-5xl md:text-6xl mt-2 ${
-                isDarkMode ? 'text-white' : 'text-slate-900'
-              }`}>
-                OUR STUDIO <span className="text-[#F97316]">SERVICES.</span>
-              </h2>
+          {/* Header */}
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#F97316]/10 border border-[#F97316]/30 text-[#F97316] text-xs font-bold uppercase tracking-widest mb-4">
+              <Sparkles className="w-4 h-4" />
+              <span>Live Database Table — KR Studioz Wedding Collections</span>
             </div>
-            <p className={`max-w-md text-xs sm:text-sm leading-relaxed ${
-              isDarkMode ? 'text-white/50' : 'text-slate-600'
+            <h2 className={`font-display font-black uppercase text-3xl sm:text-5xl md:text-6xl tracking-tight leading-none ${
+              isDarkMode ? 'text-white' : 'text-slate-900'
             }`}>
-              Explore photography, videography, and broadcasting services tailored to your occasion. Select services to build your enquiry.
+              WEDDING <span className="text-[#F97316]">PACKAGES.</span>
+            </h2>
+          </div>
+
+          {/* Religion Selector Tabs */}
+          <div className="flex justify-center mb-12">
+            <div className={`inline-flex p-1.5 rounded-2xl border flex-wrap justify-center gap-2 max-w-full ${
+              isDarkMode ? 'bg-zinc-950 border-white/15' : 'bg-white border-slate-300 shadow-lg'
+            }`}>
+              {dynamicWeddingReligions.map((rel) => {
+                const isSelected = selectedReligion === rel.id
+                return (
+                  <button
+                    key={rel.id}
+                    type="button"
+                    onClick={() => setSelectedReligion(rel.id)}
+                    className={`flex items-center gap-2.5 px-6 py-3 rounded-xl font-display font-bold text-xs sm:text-sm uppercase tracking-wider transition-all cursor-pointer ${
+                      isSelected
+                        ? 'bg-[#F97316] text-white shadow-lg shadow-orange-500/25 scale-[1.02]'
+                        : isDarkMode
+                          ? 'text-white/70 hover:text-white hover:bg-white/5'
+                          : 'text-slate-700 hover:text-black hover:bg-slate-100'
+                    }`}
+                  >
+                    <span>{rel.name}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Subtitle Banner */}
+          <div className={`p-4 rounded-xl text-center mb-10 border transition-all ${
+            isDarkMode ? 'bg-zinc-950/80 border-orange-500/20 text-orange-400' : 'bg-orange-50 border-orange-200 text-orange-800'
+          }`}>
+            <p className="text-xs sm:text-sm font-semibold tracking-wide">
+              {currentReligionObj.badge} — {currentReligionObj.subtitle}
             </p>
           </div>
 
-          {/* Category Filter Tabs */}
-          <div id="filterTabs" className="flex gap-2.5 overflow-x-auto pb-4 no-scrollbar">
-            {catList.map((cat) => {
-              const filterKey = cat.slug || cat.id || cat.name.toLowerCase()
-              const isActive = activeFilter === filterKey
-              return (
-                <button
-                  key={cat.id || filterKey}
-                  type="button"
-                  onClick={() => setActiveFilter(filterKey)}
-                  className={`filter-tab ${isActive ? 'active' : ''} ${
-                    !isDarkMode && !isActive ? '!border-slate-300 !bg-white !text-slate-700 hover:!text-[#F97316]' : ''
-                  }`}
-                >
-                  {cat.name}
-                </button>
-              )
-            })}
-          </div>
-
-          {/* Services Cards Grid */}
-          <div id="servicesList" className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-            {filteredServices.map((s, idx) => (
-              <article
-                key={s.id || idx}
-                className={`group relative rounded-2xl border overflow-hidden flex flex-col justify-between transition-all duration-300 shadow-xl ${
-                  isDarkMode 
-                    ? 'border-white/10 bg-zinc-950 hover:border-[#F97316]/50' 
-                    : 'border-slate-200 bg-white hover:border-[#F97316]/50 hover:shadow-2xl shadow-slate-200/60'
+          {/* 3 Pricing Cards Grid */}
+          <div className="grid md:grid-cols-3 gap-8 items-stretch">
+            {currentReligionObj.plans.map((plan) => (
+              <div
+                key={plan.id}
+                className={`relative rounded-3xl border p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 ${
+                  plan.isPopular
+                    ? isDarkMode
+                      ? 'bg-gradient-to-b from-zinc-900 to-zinc-950 border-[#F97316] shadow-[0_0_40px_rgba(249,115,22,0.25)] scale-[1.03] z-10'
+                      : 'bg-white border-[#F97316] shadow-2xl shadow-orange-500/20 scale-[1.03] z-10'
+                    : plan.isUltra
+                      ? isDarkMode
+                        ? 'bg-zinc-950 border-amber-500/40 hover:border-amber-500'
+                        : 'bg-white border-amber-400/60 hover:border-amber-500 shadow-xl'
+                      : isDarkMode
+                        ? 'bg-zinc-950 border-white/10 hover:border-white/30'
+                        : 'bg-white border-slate-200 shadow-xl hover:border-slate-300'
                 }`}
               >
-                <div>
-                  {/* Image Cover */}
-                  <div className="relative h-60 sm:h-64 w-full overflow-hidden bg-slate-100 dark:bg-zinc-900">
-                    {s.hero_image_url && (
-                      <Image
-                        src={s.hero_image_url}
-                        alt={s.name}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        unoptimized
-                      />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                    
-                    {/* Top Badges */}
-                    <div className="absolute top-4 left-4 right-4 flex justify-between items-center z-10">
-                      <span className="bg-black/70 backdrop-blur-md border border-white/20 text-white px-3 py-1 rounded-full text-[10px] font-bold tracking-widest">
-                        #{String(s.service_no || idx + 1).padStart(2, '0')}
-                      </span>
-                      <span className="bg-[#F97316] text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-md">
-                        {(s as any).service_categories?.name || s.label || s.category_id || 'Studioz'}
-                      </span>
-                    </div>
+                {/* Popular Badge */}
+                {plan.isPopular && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#F97316] text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1.5">
+                    <Star className="w-3.5 h-3.5 fill-white" />
+                    <span>MOST POPULAR CHOICE</span>
+                  </div>
+                )}
 
-                    {/* Title Overlay */}
-                    <div className="absolute left-5 right-5 bottom-4 text-white z-10">
-                      <h3 className="font-display font-bold uppercase text-2xl sm:text-3xl leading-tight drop-shadow-md">
-                        {s.name}
-                      </h3>
-                    </div>
+                {/* Ultra VIP Badge */}
+                {plan.isUltra && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-amber-500 text-black px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 fill-black" />
+                    <span>GRAND VIP PACKAGE</span>
+                  </div>
+                )}
+
+                <div>
+                  {/* Plan Header */}
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <span className="text-xs font-black uppercase tracking-widest text-[#F97316]">
+                      PLAN {plan.planCode}
+                    </span>
+                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md ${
+                      isDarkMode ? 'bg-white/5 text-white/60' : 'bg-slate-100 text-slate-600'
+                    }`}>
+                      {currentReligionObj.name}
+                    </span>
                   </div>
 
-                  {/* Body Description */}
-                  <div className="p-5 sm:p-6">
-                    <p className={`text-xs sm:text-sm leading-relaxed min-h-[50px] ${
-                      isDarkMode ? 'text-white/60' : 'text-slate-600'
-                    }`}>
-                      {s.description}
+                  <h3 className={`font-display font-bold uppercase text-2xl sm:text-3xl ${
+                    isDarkMode ? 'text-white' : 'text-slate-900'
+                  }`}>
+                    {plan.name}
+                  </h3>
+                  <p className={`text-xs mt-2 leading-relaxed font-medium min-h-[36px] ${
+                    isDarkMode ? 'text-white/60' : 'text-slate-600'
+                  }`}>
+                    {plan.tagline}
+                  </p>
+
+                  {/* Price */}
+                  <div className="my-6 pt-4 border-t border-dashed border-white/10">
+                    <span className={`text-[9px] uppercase tracking-widest font-bold ${
+                      isDarkMode ? 'text-white/40' : 'text-slate-400'
+                    }`}>Net Package Rate</span>
+                    <p className="font-display font-black text-3xl sm:text-4xl text-[#F97316] mt-1 tracking-tight">
+                      {plan.price}
                     </p>
+                  </div>
+
+                  {/* Feature Lists */}
+                  <div className="space-y-4 text-xs">
+                    {/* Photography & Videography */}
+                    {plan.photoTypes.length > 0 && (
+                      <div>
+                        <p className={`text-[10px] font-bold uppercase tracking-wider mb-2 ${
+                          isDarkMode ? 'text-white/40' : 'text-slate-400'
+                        }`}>
+                          Photography &amp; Videography
+                        </p>
+                        <ul className="space-y-2">
+                          {plan.photoTypes.map((pt, i) => (
+                            <li key={i} className="flex items-start gap-2.5">
+                              <Check className="w-4 h-4 text-[#F97316] shrink-0 mt-0.5" />
+                              <span className={`font-semibold ${isDarkMode ? 'text-white/90' : 'text-slate-800'}`}>
+                                {pt}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {/* Deliverables & Albums */}
+                    {plan.deliverables.length > 0 && (
+                      <div className="pt-3 border-t border-dashed border-white/10">
+                        <p className={`text-[10px] font-bold uppercase tracking-wider mb-2 ${
+                          isDarkMode ? 'text-white/40' : 'text-slate-400'
+                        }`}>
+                          Album &amp; Deliverables
+                        </p>
+                        <ul className="space-y-2">
+                          {plan.deliverables.map((del, i) => (
+                            <li key={i} className="flex items-start gap-2.5">
+                              <ShieldCheck className="w-4 h-4 text-[#F97316] shrink-0 mt-0.5" />
+                              <span className={isDarkMode ? 'text-white/80' : 'text-slate-700'}>
+                                {del}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                {/* Card Footer Actions */}
-                <div className={`p-5 sm:p-6 pt-0 border-t mt-2 ${
-                  isDarkMode ? 'border-white/5' : 'border-slate-100'
-                }`}>
-                  <div className="flex items-center justify-between gap-3 pt-4 mb-3">
-                    <div>
-                      <p className={`text-[9px] font-bold uppercase tracking-widest ${
-                        isDarkMode ? 'text-white/40' : 'text-slate-400'
-                      }`}>
-                        Starting From
-                      </p>
-                      <p className="font-display font-bold text-base sm:text-lg text-[#F97316] mt-0.5">
-                        {s.price || '₹ XX,XXX'}
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleAddToCart(s)}
-                      className="bg-[#F97316] hover:bg-slate-900 text-white px-4 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition cursor-pointer whitespace-nowrap shadow-md"
-                    >
-                      {addedNotice === s.id ? '✓ Added' : '+ Add To Enquiry'}
-                    </button>
-                  </div>
+                {/* Actions: View Media Modal & Add To Cart */}
+                <div className="mt-8 pt-6 border-t border-white/10 space-y-2.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDetailService({
+                        id: plan.id,
+                        service_no: plan.planCode === 'A' ? 1 : plan.planCode === 'B' ? 2 : 3,
+                        name: `${currentReligionObj.name} — ${plan.name}`,
+                        category_id: null,
+                        label: currentReligionObj.name,
+                        price: plan.price,
+                        description: plan.tagline,
+                        icon: 'camera',
+                        hero_image_url: plan.heroImage,
+                        cover_points: [...plan.photoTypes, ...plan.deliverables],
+                        gallery_urls: plan.galleryUrls && plan.galleryUrls.length > 0 ? plan.galleryUrls : [plan.heroImage, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'],
+                        display_order: 1,
+                        is_active: true
+                      })
+                    }}
+                    className={`w-full py-2.5 rounded-xl border text-xs font-bold uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-2 ${
+                      isDarkMode
+                        ? 'border-white/20 hover:border-[#F97316] text-white/90 hover:text-[#F97316]'
+                        : 'border-slate-300 hover:border-[#F97316] text-slate-700 hover:text-[#F97316] bg-slate-50 hover:bg-white'
+                    }`}
+                  >
+                    <Video className="w-3.5 h-3.5 text-[#F97316]" />
+                    <span>View Photos &amp; Video ▶</span>
+                  </button>
 
                   <button
                     type="button"
-                    onClick={() => setDetailService(s)}
-                    className={`w-full border py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition cursor-pointer ${
-                      isDarkMode
-                        ? 'border-white/15 hover:border-[#F97316] hover:text-[#F97316] text-white/80'
-                        : 'border-slate-300 hover:border-[#F97316] hover:text-[#F97316] text-slate-700 bg-slate-50 hover:bg-white'
+                    onClick={() => handleAddToCart({
+                      id: plan.id,
+                      name: `${currentReligionObj.name} — ${plan.name} (Plan ${plan.planCode})`,
+                      price: plan.price
+                    })}
+                    className={`w-full py-3.5 rounded-xl font-display font-bold text-xs uppercase tracking-widest transition cursor-pointer flex items-center justify-center gap-2 shadow-lg ${
+                      plan.isPopular
+                        ? 'bg-[#F97316] hover:bg-white hover:text-black text-white shadow-orange-500/30'
+                        : plan.isUltra
+                          ? 'bg-amber-500 hover:bg-amber-600 text-black shadow-amber-500/20'
+                          : isDarkMode
+                            ? 'bg-white/10 hover:bg-[#F97316] text-white hover:text-white'
+                            : 'bg-slate-900 hover:bg-[#F97316] text-white'
                     }`}
                   >
-                    View Details &amp; Gallery →
+                    <Plus className="w-4 h-4" />
+                    <span>{addedNotice === plan.id ? '✓ Package Added' : 'Add Package To Enquiry'}</span>
                   </button>
                 </div>
-              </article>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 3. WHY KR STUDIOZ SECTION */}
-      <section className={`px-4 sm:px-6 lg:px-8 py-20 md:py-28 transition-colors duration-500 border-b ${
-        isDarkMode ? 'bg-[#050505] border-white/10' : 'bg-white border-slate-200'
-      }`}>
-        <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-[0.8fr_1.2fr] gap-12 items-start">
-            <div>
-              <p className="text-[#F97316] text-xs font-bold uppercase tracking-[0.25em]">
-                02 / Why Choose Us
-              </p>
-              <h2 className={`font-display font-bold uppercase tracking-tight text-4xl sm:text-6xl lg:text-7xl leading-[0.88] mt-4 ${
+      {/* =========================================================================
+          3. STUDIOZ & SPECIAL SERVICES SECTION FROM DATABASE TABLE (studioz_services)
+      ========================================================================= */}
+      {services.length > 0 && (
+        <section id="special-services" className={`px-4 sm:px-6 lg:px-8 py-20 md:py-28 border-b transition-colors duration-500 ${
+          isDarkMode ? 'bg-[#050505] border-white/10' : 'bg-white border-slate-200'
+        }`}>
+          <div className="max-w-7xl mx-auto">
+            {/* Header */}
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#F97316]/10 border border-[#F97316]/30 text-[#F97316] text-xs font-bold uppercase tracking-widest mb-4">
+                <Camera className="w-4 h-4" />
+                <span>Studioz &amp; Special Functions ({services.length})</span>
+              </div>
+              <h2 className={`font-display font-black uppercase text-3xl sm:text-5xl md:text-6xl tracking-tight leading-none ${
                 isDarkMode ? 'text-white' : 'text-slate-900'
               }`}>
-                YOUR<br />MOMENT.<br />
-                <span className="text-[#F97316]">OUR STORY.</span>
+                SPECIAL EVENT <span className="text-[#F97316]">SERVICES.</span>
               </h2>
-              <p className={`text-xs sm:text-sm mt-6 max-w-md leading-relaxed ${
-                isDarkMode ? 'text-white/50' : 'text-slate-500'
+              <p className={`text-xs sm:text-sm mt-4 leading-relaxed font-medium ${
+                isDarkMode ? 'text-white/60' : 'text-slate-600'
               }`}>
-                We blend cinematic storytelling, top-tier camera gear, and passionate creative direction to make your celebrations unforgettable.
+                Tailored photography &amp; videography packages for Ring Ceremonies, Receptions, Birthday Parties, and Commercial Grand Openings.
               </p>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div className={`border p-6 rounded-xl transition ${
-                isDarkMode ? 'border-white/10 bg-zinc-950 hover:border-[#F97316]/50' : 'border-slate-200 bg-slate-50/70 hover:border-[#F97316]/50'
-              }`}>
-                <span className="text-[#F97316] font-display text-2xl font-bold">01</span>
-                <h3 className={`font-display font-bold uppercase text-lg sm:text-xl mt-4 ${
-                  isDarkMode ? 'text-white' : 'text-slate-900'
-                }`}>Experienced Team</h3>
-                <p className={`text-xs sm:text-sm mt-2 leading-relaxed ${
-                  isDarkMode ? 'text-white/50' : 'text-slate-600'
-                }`}>
-                  Every celebration receives dedicated lead photographers, cinematic cinematographers and audio engineers.
-                </p>
-              </div>
+            {/* Special Services Grid */}
+            <div className="grid md:grid-cols-2 gap-8 items-stretch">
+              {services.map((service, idx) => {
+                const coverPoints = service.cover_points || []
+                return (
+                  <div
+                    key={service.id}
+                    className={`group relative rounded-3xl border overflow-hidden flex flex-col justify-between transition-all duration-300 hover:shadow-2xl ${
+                      isDarkMode
+                        ? 'bg-zinc-950 border-white/10 hover:border-[#F97316]/50 shadow-black/40'
+                        : 'bg-slate-50 border-slate-200 hover:border-[#F97316] shadow-xl'
+                    }`}
+                  >
+                    {/* Hero Image Header */}
+                    {service.hero_image_url && (
+                      <div className="relative h-64 w-full overflow-hidden bg-zinc-900">
+                        <Image
+                          src={service.hero_image_url}
+                          alt={service.name}
+                          fill
+                          className="object-cover transition-transform duration-700 group-hover:scale-105"
+                          unoptimized
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent" />
+                        
+                        {/* Badges Overlay */}
+                        <div className="absolute top-4 left-4 right-4 flex items-center justify-between gap-2 z-10">
+                          <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-black/70 backdrop-blur-md text-white border border-white/20">
+                            {service.label || 'Special Package'}
+                          </span>
+                          <span className="px-3.5 py-1 rounded-full text-xs font-black font-mono bg-[#F97316] text-white shadow-lg">
+                            {service.price || 'Custom Quote'}
+                          </span>
+                        </div>
 
-              <div className={`border p-6 rounded-xl transition ${
-                isDarkMode ? 'border-white/10 bg-zinc-950 hover:border-[#F97316]/50' : 'border-slate-200 bg-slate-50/70 hover:border-[#F97316]/50'
-              }`}>
-                <span className="text-[#F97316] font-display text-2xl font-bold">02</span>
-                <h3 className={`font-display font-bold uppercase text-lg sm:text-xl mt-4 ${
-                  isDarkMode ? 'text-white' : 'text-slate-900'
-                }`}>Candid &amp; Artistic</h3>
-                <p className={`text-xs sm:text-sm mt-2 leading-relaxed ${
-                  isDarkMode ? 'text-white/50' : 'text-slate-600'
-                }`}>
-                  We capture genuine emotions, candid laughter, and precious family traditions naturally.
-                </p>
-              </div>
+                        <div className="absolute bottom-4 left-6 right-6 z-10">
+                          <span className="text-[10px] font-mono font-bold text-[#F97316] tracking-widest uppercase">
+                            SERVICE #{String(service.service_no || idx + 1).padStart(2, '0')}
+                          </span>
+                          <h3 className="font-display font-bold uppercase text-2xl sm:text-3xl text-white mt-0.5 drop-shadow-md">
+                            {service.name}
+                          </h3>
+                        </div>
+                      </div>
+                    )}
 
-              <div className={`border p-6 rounded-xl transition ${
-                isDarkMode ? 'border-white/10 bg-zinc-950 hover:border-[#F97316]/50' : 'border-slate-200 bg-slate-50/70 hover:border-[#F97316]/50'
-              }`}>
-                <span className="text-[#F97316] font-display text-2xl font-bold">03</span>
-                <h3 className={`font-display font-bold uppercase text-lg sm:text-xl mt-4 ${
-                  isDarkMode ? 'text-white' : 'text-slate-900'
-                }`}>Complete Coverage</h3>
-                <p className={`text-xs sm:text-sm mt-2 leading-relaxed ${
-                  isDarkMode ? 'text-white/50' : 'text-slate-600'
-                }`}>
-                  Photography, 4K films, drone reels, and multi-cam live streaming under one studio roof.
-                </p>
-              </div>
+                    <div className="p-6 sm:p-8 flex-1 flex flex-col justify-between space-y-6">
+                      {!service.hero_image_url && (
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-[10px] font-mono font-bold text-[#F97316] tracking-widest uppercase">
+                              SERVICE #{String(service.service_no || idx + 1).padStart(2, '0')}
+                            </span>
+                            <span className="font-mono font-bold text-sm text-[#F97316]">{service.price}</span>
+                          </div>
+                          <h3 className={`font-display font-bold uppercase text-2xl sm:text-3xl ${
+                            isDarkMode ? 'text-white' : 'text-slate-900'
+                          }`}>
+                            {service.name}
+                          </h3>
+                        </div>
+                      )}
 
-              <div className={`border p-6 rounded-xl transition ${
-                isDarkMode ? 'border-white/10 bg-zinc-950 hover:border-[#F97316]/50' : 'border-slate-200 bg-slate-50/70 hover:border-[#F97316]/50'
-              }`}>
-                <span className="text-[#F97316] font-display text-2xl font-bold">04</span>
-                <h3 className={`font-display font-bold uppercase text-lg sm:text-xl mt-4 ${
-                  isDarkMode ? 'text-white' : 'text-slate-900'
-                }`}>Custom Packages</h3>
-                <p className={`text-xs sm:text-sm mt-2 leading-relaxed ${
-                  isDarkMode ? 'text-white/50' : 'text-slate-600'
-                }`}>
-                  Tailored packages designed specifically around your event dates, locations, and budget.
-                </p>
-              </div>
+                      {/* Description */}
+                      {service.description && (
+                        <p className={`text-xs sm:text-sm leading-relaxed ${
+                          isDarkMode ? 'text-white/70' : 'text-slate-600'
+                        }`}>
+                          {service.description}
+                        </p>
+                      )}
+
+                      {/* Cover Points / Inclusions List */}
+                      {coverPoints.length > 0 && (
+                        <div className="space-y-2.5 pt-2">
+                          <p className={`text-[10px] font-bold uppercase tracking-wider ${
+                            isDarkMode ? 'text-white/40' : 'text-slate-400'
+                          }`}>
+                            Package Highlights &amp; Coverage
+                          </p>
+                          <div className="grid sm:grid-cols-2 gap-2 text-xs">
+                            {coverPoints.map((pt, pIdx) => (
+                              <div key={pIdx} className="flex items-center gap-2">
+                                <Check className="w-3.5 h-3.5 text-[#F97316] shrink-0" />
+                                <span className={`font-medium ${isDarkMode ? 'text-white/90' : 'text-slate-800'}`}>
+                                  {pt}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Actions */}
+                      <div className="pt-6 border-t border-white/10 grid sm:grid-cols-2 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setDetailService(service)}
+                          className={`py-3 px-4 rounded-xl border text-xs font-bold uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-2 ${
+                            isDarkMode
+                              ? 'border-white/20 hover:border-[#F97316] text-white hover:text-[#F97316]'
+                              : 'border-slate-300 hover:border-[#F97316] text-slate-700 hover:text-[#F97316] bg-white'
+                          }`}
+                        >
+                          <Video className="w-3.5 h-3.5 text-[#F97316]" />
+                          <span>View Details &amp; Media</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleAddToCart({
+                            id: service.id,
+                            name: service.name,
+                            price: service.price
+                          })}
+                          className="py-3 px-4 rounded-xl font-display font-bold text-xs uppercase tracking-widest transition cursor-pointer flex items-center justify-center gap-2 bg-[#F97316] hover:bg-white hover:text-black text-white shadow-lg shadow-orange-500/20"
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>{addedNotice === service.id ? '✓ Service Added' : 'Add To Enquiry'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* 4. FINAL CTA BANNER */}
+
+
+      {/* 7. FINAL CTA BANNER */}
       <section className={`px-4 sm:px-6 lg:px-8 py-20 md:py-28 transition-colors duration-500 ${
         isDarkMode ? 'bg-[#0a0a0a]' : 'bg-slate-50'
       }`}>
@@ -591,13 +689,13 @@ export default function StudiozView({
         }`}>
           <div className="relative z-10 max-w-2xl">
             <p className="text-[#F97316] text-xs font-bold uppercase tracking-[0.25em]">
-              03 / Ready to Record
+              06 / Ready to Record
             </p>
             <h2 className="font-display font-bold uppercase tracking-tight text-3xl sm:text-5xl md:text-6xl mt-3 text-white leading-tight">
               YOUR STORY DESERVES TO BE <span className="text-[#F97316]">REMEMBERED.</span>
             </h2>
             <p className="text-xs sm:text-sm text-white/60 mt-4 leading-relaxed">
-              Contact us or add services to your cart to request a personalized quote for your upcoming event.
+              Contact us or add packages to your cart to request a personalized quote for your upcoming event.
             </p>
           </div>
 
@@ -632,7 +730,7 @@ export default function StudiozView({
               </button>
               <button
                 type="button"
-                onClick={() => handleAddToCart(detailService)}
+                onClick={() => handleAddToCart({ id: detailService.id, name: detailService.name, price: detailService.price })}
                 className="bg-[#F97316] hover:bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition cursor-pointer"
               >
                 + Add To Enquiry
@@ -709,7 +807,7 @@ export default function StudiozView({
                   <h3 className={`font-display font-bold uppercase text-lg mb-4 ${
                     isDarkMode ? 'text-white' : 'text-slate-900'
                   }`}>
-                    Sample Gallery Work (Photos & Videos)
+                    Sample Gallery Work (Photos &amp; Videos)
                   </h3>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {detailService.gallery_urls.map((url, i) => {
@@ -803,13 +901,11 @@ export default function StudiozView({
             )}
 
             {getMediaType(lightboxImg) === 'instagram' && (
-              <div className="w-full max-w-md h-[80vh] rounded-2xl border border-white/20 overflow-hidden shadow-2xl bg-black">
-                <iframe
-                  src={getInstagramEmbedUrl(lightboxImg)}
-                  className="w-full h-full border-none"
-                  allowFullScreen
-                />
-              </div>
+              <iframe
+                src={getInstagramEmbedUrl(lightboxImg)}
+                className="w-full max-w-md h-[75vh] rounded-2xl border border-white/20 shadow-2xl bg-black"
+                allowFullScreen
+              />
             )}
 
             {getMediaType(lightboxImg) === 'video_file' && (
@@ -817,23 +913,21 @@ export default function StudiozView({
                 src={lightboxImg}
                 controls
                 autoPlay
-                className="max-h-[85vh] max-w-[90vw] rounded-2xl border border-white/20 shadow-2xl"
+                className="max-w-full max-h-full rounded-2xl border border-white/20 shadow-2xl"
               />
             )}
 
             {getMediaType(lightboxImg) === 'image' && (
-              <Image
+              <img
                 src={lightboxImg}
-                alt="Gallery preview"
-                width={1200}
-                height={800}
-                className="max-h-[85vh] max-w-[90vw] object-contain rounded-2xl border border-white/20 shadow-2xl"
-                unoptimized
+                alt="Enlarged view"
+                className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl"
               />
             )}
           </div>
         </div>
       )}
+
     </main>
   )
 }

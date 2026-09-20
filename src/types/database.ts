@@ -123,3 +123,24 @@ export type FounderDeck = {
   display_order?: number;
 };
 
+export type WeddingPackage = {
+  id: string;
+  religion: 'hindu' | 'christian' | 'muslim' | string;
+  plan_code: 'A' | 'B' | 'C' | string;
+  plan_name: string;
+  tagline: string | null;
+  badge: string | null;
+  price: string;
+  hero_image_url: string | null;
+  photo_video_inclusions: string[] | null;
+  deliverables_inclusions: string[] | null;
+  gallery_urls?: string[] | null;
+  is_popular: boolean;
+  is_ultra: boolean;
+  display_order: number;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+};
+
+

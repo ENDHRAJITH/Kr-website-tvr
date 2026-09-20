@@ -143,12 +143,12 @@ export default function DataTable<T extends { id: string }>({
             >
               <tr>
                 {columns.map((col, idx) => (
-                  <th key={idx} className="px-6 py-4">
+                  <th key={idx} className="px-6 py-4 whitespace-nowrap">
                     {col.header}
                   </th>
                 ))}
                 {(editUrl || onEdit || onDelete) && (
-                  <th className="px-6 py-4 text-right">Actions</th>
+                  <th className="px-6 py-4 text-right whitespace-nowrap">Actions</th>
                 )}
               </tr>
             </thead>

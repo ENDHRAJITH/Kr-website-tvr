@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { StudiozService, MarketingService, PortfolioItem, ClientLogo, SiteStat } from '@/types/database'
 import { useTheme } from '@/context/ThemeContext'
 import HomePortfolio from '@/components/public/HomePortfolio'
+import { Camera, Laptop, Sparkles } from 'lucide-react'
 
 interface HomeViewProps {
   studiozServices: StudiozService[]
@@ -23,7 +24,7 @@ export default function HomeView({
   siteStats,
 }: HomeViewProps) {
   const { isDarkMode } = useTheme()
-  const [heroImageUrl, setHeroImageUrl] = useState('/f11.png')
+  const [heroImageUrl, setHeroImageUrl] = useState('/images/kr-founders-hero.png')
   const [heroImageScale, setHeroImageScale] = useState(100)
 
   useEffect(() => {
@@ -119,16 +120,20 @@ export default function HomeView({
             <div className="mt-6 sm:mt-8 md:mt-10 xl:-translate-y-10 grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(460px,620px)_minmax(0,1fr)] gap-10 sm:gap-12 md:gap-16 xl:gap-14 items-center">
               {/* STUDIOZ LEFT COLUMN */}
               <div className="reveal delay-1 w-full min-w-0 flex flex-col items-center xl:items-start text-center xl:text-left xl:-mt-12">
-                <div className="flex items-center justify-center xl:justify-start gap-2 mb-4 md:mb-5">
-                  <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F97316] opacity-75" />
-                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#F97316]" />
-                  </span>
-                  <p className={`text-[10px] sm:text-xs md:text-sm uppercase tracking-[0.18em] sm:tracking-[0.22em] font-bold ${
-                    isDarkMode ? 'text-white/70' : 'text-zinc-700'
+                <div className="flex items-center justify-center xl:justify-start mb-5">
+                  <div className={`inline-flex items-center gap-2.5 px-5 py-2.5 sm:px-6 sm:py-3 rounded-2xl border-2 shadow-lg transition-all duration-300 ${
+                    isDarkMode
+                      ? 'bg-gradient-to-r from-[#F97316]/20 via-[#F97316]/10 to-zinc-950 border-[#F97316]/60 shadow-[0_8px_25px_rgba(249,115,22,0.25)]'
+                      : 'bg-gradient-to-r from-orange-50 via-amber-50 to-white border-[#F97316] shadow-[0_8px_25px_rgba(249,115,22,0.15)]'
                   }`}>
-                    KR Studioz
-                  </p>
+                    <span className="relative flex h-3 w-3 shrink-0">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F97316] opacity-75" />
+                      <span className="relative inline-flex h-3 w-3 rounded-full bg-[#F97316]" />
+                    </span>
+                    <span className="text-xs sm:text-sm md:text-base font-black uppercase tracking-[0.22em] text-[#F97316]">
+                      KR Studioz
+                    </span>
+                  </div>
                 </div>
 
                 <h1 className={`font-display font-black tracking-[-0.065em] leading-[0.86] text-[3rem] sm:text-[3.8rem] md:text-[5rem] lg:text-[5.5rem] xl:text-[clamp(3rem,5.5vw,6rem)] ${
@@ -170,23 +175,41 @@ export default function HomeView({
                 <div className="floating-dot absolute top-7 right-[15%] sm:top-8 sm:right-[17%] md:right-[18%] xl:right-4 w-3 h-3 rounded-full bg-[#F97316] z-20" />
                 <div className="floating-dot absolute bottom-14 left-[15%] sm:left-[17%] md:left-[18%] xl:left-2 w-2 h-2 rounded-full bg-orange-400 z-20" />
 
+                {/* CLEVER FLOATING BADGE LEFT: RAJITHA (KR STUDIOZ) */}
+                <div className="hidden lg:flex items-center gap-2.5 absolute top-[28%] left-[-20px] xl:left-[-35px] z-30 px-4 py-2.5 rounded-2xl bg-zinc-950/90 backdrop-blur-xl border border-orange-500/40 text-white shadow-2xl animate-pulse">
+                  <div className="w-8 h-8 rounded-xl bg-orange-500/20 text-[#F97316] flex items-center justify-center shrink-0">
+                    <Camera className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-orange-400 font-mono font-bold uppercase tracking-wider">KR Studioz</p>
+                    <p className="text-xs font-black text-white">Visual Storytelling</p>
+                  </div>
+                </div>
+
+                {/* CLEVER FLOATING BADGE RIGHT: KARTHICK (KR DIGITAL) */}
+                <div className="hidden lg:flex items-center gap-2.5 absolute top-[35%] right-[-20px] xl:right-[-35px] z-30 px-4 py-2.5 rounded-2xl bg-zinc-950/90 backdrop-blur-xl border border-orange-500/40 text-white shadow-2xl animate-pulse">
+                  <div className="w-8 h-8 rounded-xl bg-orange-500/20 text-[#F97316] flex items-center justify-center shrink-0">
+                    <Laptop className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-orange-400 font-mono font-bold uppercase tracking-wider">KR Digital</p>
+                    <p className="text-xs font-black text-white">12.4M+ Viral Reach</p>
+                  </div>
+                </div>
+
                 {/* FOUNDER IMAGE */}
                 <div
                   className="relative z-10 flex items-end justify-center w-full -translate-y-2 sm:-translate-y-1 md:translate-y-0 transition-transform duration-300 origin-bottom"
                   style={{ transform: `scale(${heroImageScale / 100})` }}
                 >
-                  <Image
-                    src={heroImageUrl || '/f11.png'}
-                    alt="KR Founders"
-                    width={590}
-                    height={700}
-                    priority
-                    className="founder-image relative z-10 w-[300px] sm:w-[360px] md:w-[470px] lg:w-[530px] xl:w-[590px] h-auto max-w-none object-contain select-none [mask-image:linear-gradient(to_bottom,black_88%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_88%,transparent_100%)]"
-                    unoptimized
+                  <img
+                    src={heroImageUrl || '/images/kr-founders-hero.png'}
+                    alt="KR Founders - Rajitha & Karthick Tamilan"
+                    className="founder-image relative z-10 w-[300px] sm:w-[370px] md:w-[480px] lg:w-[540px] xl:w-[600px] h-auto max-w-none object-contain select-none drop-shadow-[0_20px_35px_rgba(249,115,22,0.22)] contrast-[1.03] brightness-[1.02]"
                   />
 
-                  {/* BOTTOM FADE */}
-                  <div className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-[250px] sm:w-[310px] md:w-[390px] lg:w-[460px] xl:w-[520px] h-16 sm:h-20 md:h-28 blur-2xl opacity-85 pointer-events-none z-20 ${
+                  {/* BOTTOM AMBIENT FADE */}
+                  <div className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-[250px] sm:w-[310px] md:w-[390px] lg:w-[460px] xl:w-[520px] h-12 sm:h-16 md:h-20 blur-xl opacity-75 pointer-events-none z-20 ${
                     isDarkMode ? 'bg-[#050505]' : 'bg-white'
                   }`} />
                 </div>
@@ -241,16 +264,20 @@ export default function HomeView({
               {/* DIGITAL MARKETING RIGHT COLUMN */}
               <div className="reveal delay-3 w-full min-w-0 flex flex-col items-center xl:items-end text-center xl:text-right xl:-mt-10">
                 <div className="w-full max-w-[430px]">
-                  <div className="flex items-center justify-center xl:justify-end gap-2 mb-4 md:mb-5">
-                    <p className={`text-[10px] sm:text-xs md:text-sm uppercase tracking-[0.18em] sm:tracking-[0.22em] font-bold whitespace-nowrap ${
-                      isDarkMode ? 'text-white/70' : 'text-zinc-700'
+                  <div className="flex items-center justify-center xl:justify-end mb-5">
+                    <div className={`inline-flex items-center gap-2.5 px-5 py-2.5 sm:px-6 sm:py-3 rounded-2xl border-2 shadow-lg transition-all duration-300 ${
+                      isDarkMode
+                        ? 'bg-gradient-to-r from-zinc-950 via-[#F97316]/10 to-[#F97316]/20 border-[#F97316]/60 shadow-[0_8px_25px_rgba(249,115,22,0.25)]'
+                        : 'bg-gradient-to-r from-white via-amber-50 to-orange-50 border-[#F97316] shadow-[0_8px_25px_rgba(249,115,22,0.15)]'
                     }`}>
-                      KR Digital Marketing
-                    </p>
-                    <span className="relative flex h-2.5 w-2.5 shrink-0">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F97316] opacity-75" />
-                      <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#F97316]" />
-                    </span>
+                      <span className="text-xs sm:text-sm md:text-base font-black uppercase tracking-[0.22em] text-[#F97316] whitespace-nowrap">
+                        KR Digital Marketing
+                      </span>
+                      <span className="relative flex h-3 w-3 shrink-0">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F97316] opacity-75" />
+                        <span className="relative inline-flex h-3 w-3 rounded-full bg-[#F97316]" />
+                      </span>
+                    </div>
                   </div>
 
                   <h1 className={`font-display font-black tracking-[-0.065em] leading-[0.86] text-[3rem] sm:text-[3.8rem] md:text-[5rem] lg:text-[5.5rem] xl:text-[clamp(3rem,5.2vw,5.8rem)] text-center xl:text-right ${

@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { ClientLogo } from '@/types/database'
 import { useTheme } from '@/context/ThemeContext'
 
@@ -8,16 +9,34 @@ interface ClientLogosProps {
 }
 
 const defaultLogos: ClientLogo[] = [
-  { id: 'cl1', name: 'KR Studioz', logo_url: '/kr-logo.png', link: null, display_order: 1, is_active: true },
-  { id: 'cl2', name: 'Delta Marketing', logo_url: '/kr-logo.png', link: null, display_order: 2, is_active: true },
-  { id: 'cl3', name: 'Apex Media', logo_url: '/kr-logo.png', link: null, display_order: 3, is_active: true },
-  { id: 'cl4', name: 'Vibe Weddings', logo_url: '/kr-logo.png', link: null, display_order: 4, is_active: true },
-  { id: 'cl5', name: 'Cinematic Films', logo_url: '/kr-logo.png', link: null, display_order: 5, is_active: true },
+  { id: 'cl-bni', name: 'BNI Emperor Chapter', logo_url: '/images/bni-logo.png', link: null, display_order: 1, is_active: true },
+  { id: 'cl-kr-digital', name: 'KR Digital Marketing', logo_url: '/kr-logo.png', link: null, display_order: 2, is_active: true },
+  { id: 'cl-real-estate', name: 'Delta Real Estate Developers', logo_url: '/kr-logo.png', link: null, display_order: 3, is_active: true },
+  { id: 'cl-studioz', name: 'KR Studioz Wedding Films', logo_url: '/kr-logo.png', link: null, display_order: 4, is_active: true },
+  { id: 'cl-thiruvarur-realtors', name: 'Thiruvarur Land & Plot Sales', logo_url: '/kr-logo.png', link: null, display_order: 5, is_active: true },
+  { id: 'cl-nri-investors', name: 'Gulf & SEA NRI Investor Network', logo_url: '/kr-logo.png', link: null, display_order: 6, is_active: true },
 ]
 
-export default function ClientLogos({ items = [] }: ClientLogosProps) {
+export default function ClientLogos({ items: propItems }: ClientLogosProps) {
   const { isDarkMode } = useTheme()
-  const activeLogos = items.length > 0 ? items : defaultLogos
+  const [fetchedLogos, setFetchedLogos] = useState<ClientLogo[]>([])
+
+  useEffect(() => {
+    // Direct fetch from API endpoint
+    fetch('/api/client-logos')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.logos && Array.isArray(data.logos) && data.logos.length > 0) {
+          setFetchedLogos(data.logos)
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  const activeLogos = (propItems && propItems.length > 0) 
+    ? propItems 
+    : (fetchedLogos.length > 0 ? fetchedLogos : defaultLogos)
+
   const marqueeItems = [...activeLogos, ...activeLogos, ...activeLogos, ...activeLogos]
 
   return (
@@ -38,10 +57,10 @@ export default function ClientLogos({ items = [] }: ClientLogosProps) {
             {marqueeItems.map((item, i) => (
               <div
                 key={`${item.id || i}-${i}`}
-                className={`inline-flex items-center gap-3 px-4 py-2 rounded-xl border transition-all duration-300 shrink-0 ${
+                className={`inline-flex items-center gap-3 px-4 py-2.5 rounded-xl border transition-all duration-300 shrink-0 ${
                   isDarkMode
                     ? 'bg-white/[0.03] border-white/10 hover:border-orange-500/40'
-                    : 'bg-orange-500/[0.04] border-orange-500/15 hover:border-orange-500/40'
+                    : 'bg-orange-500/[0.04] border-orange-500/15 hover:border-orange-500/40 shadow-sm'
                 }`}
               >
                 {item.logo_url && item.logo_url.trim() !== '' && (
@@ -52,8 +71,8 @@ export default function ClientLogos({ items = [] }: ClientLogosProps) {
                   />
                 )}
                 <span
-                  className={`font-display font-bold text-xs sm:text-sm md:text-base uppercase tracking-wider ${
-                    isDarkMode ? 'text-white/90' : 'text-zinc-800'
+                  className={`font-display font-black text-xs sm:text-sm md:text-base uppercase tracking-wider ${
+                    isDarkMode ? 'text-white' : 'text-zinc-900'
                   }`}
                 >
                   {item.name}
@@ -66,4 +85,3 @@ export default function ClientLogos({ items = [] }: ClientLogosProps) {
     </section>
   )
 }
-

@@ -20,7 +20,32 @@ export default function AboutView({
 }: AboutViewProps) {
   const { isDarkMode } = useTheme()
 
-  const teamMembers = initialTeamMembers
+  const fallbackTeamMembers: TeamMember[] = [
+    {
+      id: 'karthick-tamilan',
+      name: 'Karthick Tamilan',
+      role: 'Founder & Director | Vice President, BNI Emperor Chapter',
+      bio: 'Karthick Tamilan holds the position of Vice President of the BNI Emperor Chapter in Thiruvarur district (under the BNI Nagapattinam, Karaikal, Mayiladuthurai, and Thiruvarur region). He actively manages the chapter leadership team, organizes cross-chapter Leadership Team Roundtable (LTRT) initiatives, and drives entrepreneur networking across the Delta region.',
+      photo_url: '/images/karthick-bni-vp.jpg',
+      display_order: 1,
+      social_links: {
+        instagram: 'https://www.instagram.com/karthick_tamilan',
+        facebook: 'https://www.facebook.com/KRDigitalMarketing2019/',
+        whatsapp: 'https://wa.me/919626759859',
+        youtube: 'https://www.youtube.com/@karthick_tamilan'
+      }
+    }
+  ]
+
+  const teamMembers = initialTeamMembers.length > 0 
+    ? initialTeamMembers.map(m => m.name.toLowerCase().includes('karthick') ? {
+        ...m,
+        role: 'Founder & Director | Vice President, BNI Emperor Chapter',
+        bio: 'Karthick Tamilan holds the position of Vice President of the BNI Emperor Chapter in Thiruvarur district (under the BNI Nagapattinam, Karaikal, Mayiladuthurai, and Thiruvarur region). He actively manages the chapter leadership team, organizes cross-chapter Leadership Team Roundtable (LTRT) initiatives, and drives entrepreneur networking across the Delta region.',
+        photo_url: m.photo_url || '/images/karthick-bni-vp.jpg'
+      } : m)
+    : fallbackTeamMembers
+
   const testimonials = initialTestimonials
   const stats = initialStats
 

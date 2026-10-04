@@ -304,7 +304,7 @@ export default function StudiozView({
           <div className="text-center max-w-3xl mx-auto mb-12">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#F97316]/10 border border-[#F97316]/30 text-[#F97316] text-xs font-bold uppercase tracking-widest mb-4">
               <Sparkles className="w-4 h-4" />
-              <span>Live Database Table — KR Studioz Wedding Collections</span>
+              <span>KR Studioz Exclusive Wedding Collections</span>
             </div>
             <h2 className={`font-display font-black uppercase text-3xl sm:text-5xl md:text-6xl tracking-tight leading-none ${
               isDarkMode ? 'text-white' : 'text-slate-900'

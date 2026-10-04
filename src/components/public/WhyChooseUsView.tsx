@@ -208,7 +208,7 @@ export default function WhyChooseUsView() {
               </h2>
             </div>
             <p className={`max-w-md text-xs sm:text-sm leading-relaxed ${isDarkMode ? 'text-white/60' : 'text-slate-600'}`}>
-              Data sourced directly from live Instagram Professional Insights. Verified high-intent demographic breakdown for maximum real estate sales &amp; brand conversion.
+              Verified high-intent demographic breakdown for maximum real estate sales &amp; brand conversion.
             </p>
           </div>
 

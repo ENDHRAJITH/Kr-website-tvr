@@ -5,7 +5,6 @@ import { createClient } from '@/lib/supabase/client'
 import DataTable, { Column } from '@/components/admin/DataTable'
 import ConfirmDeleteModal from '@/components/admin/ConfirmDeleteModal'
 import { StudiozVideoItem } from '@/components/public/StudiozVideoMarquee'
-import { FALLBACK_STUDIOZ_VIDEOS } from '@/lib/constants/fallbackData'
 import { Video, Image as ImageIcon, ExternalLink } from 'lucide-react'
 
 type VideoRow = StudiozVideoItem & {
@@ -39,23 +38,13 @@ export default function StudiozVideosListPage() {
     if (!deleteTarget) return
     setDeleting(true)
 
-    // Check if ID is a valid UUID format
-    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(deleteTarget.id)
-
-    if (isUuid) {
-      const { error } = await supabase.from('studioz_videos').delete().eq('id', deleteTarget.id)
-      if (error) {
-        console.warn('Supabase delete error (removing locally):', error.message)
-      }
+    const { error } = await supabase.from('studioz_videos').delete().eq('id', deleteTarget.id)
+    if (error) {
+      console.error('Supabase delete error:', error.message)
     }
 
     const updated = videos.filter((s) => s.id !== deleteTarget.id)
     setVideos(updated)
-    try {
-      localStorage.setItem('kr_studioz_videos', JSON.stringify(updated))
-    } catch (e) {
-      // ignore
-    }
     setDeleteTarget(null)
     setDeleting(false)
   }

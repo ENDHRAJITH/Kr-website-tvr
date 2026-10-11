@@ -15,15 +15,17 @@ export function isSupabaseConfigured(): boolean {
 export async function safeSupabaseQuery<T>(
   queryFn: (supabase: any) => Promise<T>,
   fallbackValue: T,
-  timeoutMs: number = 1200
+  timeoutMs: number = 8000
 ): Promise<T> {
   if (!isSupabaseConfigured()) {
+    console.warn('Supabase is not configured with valid URL & anon key.')
     return fallbackValue
   }
 
   let timer: NodeJS.Timeout
   const timeoutPromise = new Promise<T>((resolve) => {
     timer = setTimeout(() => {
+      console.warn(`Supabase query timed out after ${timeoutMs}ms`)
       resolve(fallbackValue)
     }, timeoutMs)
   })
@@ -35,6 +37,7 @@ export async function safeSupabaseQuery<T>(
     return result ?? fallbackValue
   } catch (err) {
     if (timer!) clearTimeout(timer)
+    console.error('safeSupabaseQuery error:', err)
     return fallbackValue
   }
 }

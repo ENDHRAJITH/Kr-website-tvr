@@ -7,15 +7,6 @@ interface ClientLogosProps {
   items?: ClientLogo[]
 }
 
-const defaultLogos: ClientLogo[] = [
-  { id: 'cl-bni', name: 'BNI Emperor Chapter', logo_url: '/images/bni-logo.png', link: null, display_order: 1, is_active: true },
-  { id: 'cl-kr-digital', name: 'KR Digital Marketing', logo_url: '/kr-logo.png', link: null, display_order: 2, is_active: true },
-  { id: 'cl-real-estate', name: 'Delta Real Estate Developers', logo_url: '/kr-logo.png', link: null, display_order: 3, is_active: true },
-  { id: 'cl-studioz', name: 'KR Studioz Wedding Films', logo_url: '/kr-logo.png', link: null, display_order: 4, is_active: true },
-  { id: 'cl-thiruvarur-realtors', name: 'Thiruvarur Land & Plot Sales', logo_url: '/kr-logo.png', link: null, display_order: 5, is_active: true },
-  { id: 'cl-nri-investors', name: 'Gulf & SEA NRI Investor Network', logo_url: '/kr-logo.png', link: null, display_order: 6, is_active: true },
-]
-
 // Iconic partner / ecosystem marks matching reference image
 const brandMarks = [
   { name: 'Figma', font: 'font-sans font-bold tracking-tight text-lg sm:text-xl' },
@@ -45,9 +36,10 @@ export default function ClientLogos({ items: propItems }: ClientLogosProps) {
       .catch(() => {})
   }, [])
 
+  // Strictly use database-driven logos (from props or fetched from Supabase)
   const activeLogos = (propItems && propItems.length > 0) 
     ? propItems 
-    : (fetchedLogos.length > 0 ? fetchedLogos : defaultLogos)
+    : fetchedLogos
 
   // Interleave client logos and brand marks for a rich, continuous marquee
   const combinedItems = [

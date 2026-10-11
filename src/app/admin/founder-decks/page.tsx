@@ -50,35 +50,16 @@ export default function AdminFounderDecksPage() {
     }
   }, [activeIdx, decks])
 
-  const LOCAL_STORAGE_KEY = 'kr_admin_founder_decks_v2'
-
   const fetchDecks = async () => {
     setLoading(true)
-
-    // 1. Read from localStorage first for instant render
-    let localSaved: FounderDeck[] = []
-    try {
-      const stored = localStorage.getItem(LOCAL_STORAGE_KEY)
-      if (stored) {
-        localSaved = JSON.parse(stored)
-        if (localSaved && localSaved.length > 0) {
-          setDecks(localSaved)
-        }
-      }
-    } catch (e) {}
-
-    // 2. Fetch from Server API (/api/admin/founder-decks) which checks disk JSON & Supabase
     try {
       const res = await fetch('/api/admin/founder-decks')
       const data = await res.json()
       if (data?.decks && Array.isArray(data.decks) && data.decks.length > 0) {
         setDecks(data.decks)
-        try {
-          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data.decks))
-        } catch (e) {}
       }
     } catch (err) {
-      console.warn('API fetch failed, relying on localStorage:', err)
+      console.error('Error fetching founder decks from database:', err)
     } finally {
       setLoading(false)
     }
@@ -118,13 +99,7 @@ export default function AdminFounderDecksPage() {
     const newDecks = decks.map((d, i) => (i === activeIdx ? { ...d, ...payload } : d))
     setDecks(newDecks)
 
-    // Save to localStorage IMMEDIATELY so page refresh retains changes
-    try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newDecks))
-      window.dispatchEvent(new Event('kr-founder-decks-updated'))
-    } catch (e) {}
-
-    // Save to Server API endpoint (updates disk JSON & Supabase)
+    // Save exclusively to Supabase database via API endpoint
     try {
       const res = await fetch('/api/admin/founder-decks', {
         method: 'POST',
@@ -136,18 +111,18 @@ export default function AdminFounderDecksPage() {
       if (result.success) {
         setMessage({
           type: 'success',
-          text: `Successfully saved ${founderName}'s portfolio deck! (Saved on server disk & synced with database)`,
+          text: `Successfully saved ${founderName}'s portfolio deck directly into Supabase database!`,
         })
       } else {
         setMessage({
-          type: 'success',
-          text: `Saved ${founderName}'s deck locally in browser storage!`,
+          type: 'error',
+          text: result.error || `Failed to save ${founderName}'s deck to Supabase.`,
         })
       }
     } catch (err: any) {
       setMessage({
-        type: 'success',
-        text: `Saved ${founderName}'s deck in browser storage!`,
+        type: 'error',
+        text: `Error saving deck to database: ${err.message}`,
       })
     }
 

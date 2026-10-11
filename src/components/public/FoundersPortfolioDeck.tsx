@@ -34,17 +34,9 @@ export default function FoundersPortfolioDeck({
   const supabase = createClient()
   const [fetchedDecks, setFetchedDecks] = useState<FounderDeck[]>([])
 
-  const LOCAL_STORAGE_KEY = 'kr_admin_founder_decks_v2'
-
   useEffect(() => {
     const fetchDecksAndTeam = async () => {
       try {
-        let localDecks: FounderDeck[] = []
-        try {
-          const stored = localStorage.getItem(LOCAL_STORAGE_KEY)
-          if (stored) localDecks = JSON.parse(stored)
-        } catch (e) {}
-
         const [apiRes, teamRes] = await Promise.all([
           fetch('/api/admin/founder-decks').then((r) => r.json()).catch(() => ({ decks: [] })),
           supabase.from('team_members').select('*').order('display_order', { ascending: true }),
@@ -53,10 +45,7 @@ export default function FoundersPortfolioDeck({
         const apiDecks = (apiRes?.decks as FounderDeck[]) || []
         const teamData = (teamRes.data as TeamMember[]) || []
 
-        let baseDecks = propDecks && propDecks.length > 0 ? propDecks : apiDecks
-        if (baseDecks.length === 0 && localDecks.length > 0) {
-          baseDecks = localDecks
-        }
+        const baseDecks = propDecks && propDecks.length > 0 ? propDecks : apiDecks
 
         if (baseDecks.length > 0) {
           const enrichedDecks: FounderDeck[] = baseDecks.map((deck) => {

@@ -150,8 +150,7 @@ export default function DigitalMarketingView({
   const [activeFilter, setActiveFilter] = useState<string>('all')
   const [openCardId, setOpenCardId] = useState<string | null>(null)
   const [addedNotice, setAddedNotice] = useState<string | null>(null)
-
-  const services = initialServices && initialServices.length > 0 ? initialServices : FALLBACK_SERVICES
+  const services = initialServices ?? []
 
   const catList = categories && categories.length > 0
     ? [{ id: 'all', slug: 'all', name: 'All Services', division: 'marketing', display_order: 0 }, ...categories]

@@ -1,0 +1,128 @@
+{
+  "hero": {
+    "badge": "Why Choose Us • Verified Market Authority",
+    "title": "WHY BRANDS & REAL ESTATE DEVELOPERS",
+    "titleHighlight": "TRUST KARTHICK TAMILAN.",
+    "description": "We don't just create ad campaigns — we build visual desire backed by 12.4 Million+ verified content views, 70.6% prime investor demographics, and laser-targeted NRI lead funnels.",
+    "stats": [
+      { "value": "12.4M+", "label": "30-Day Content Views" },
+      { "value": "4.04M+", "label": "Unique Viewers Reached" },
+      { "value": "9.5M+", "label": "Viral Reel Plays" },
+      { "value": "70.6%", "label": "Investors Aged 25–44" }
+    ]
+  },
+  "bniLeadership": {
+    "badge": "Regional Entrepreneur Leadership",
+    "chapterName": "BNI Emperor Chapter",
+    "leaderName": "KARTHICK TAMILAN",
+    "role": "VICE PRESIDENT — BNI EMPEROR CHAPTER",
+    "subtitle": "Founder, KR Digital Marketing & Studioz",
+    "description": "Karthick Tamilan holds the position of Vice President of the BNI Emperor Chapter in Thiruvarur district (under the BNI Nagapattinam, Karaikal, Mayiladuthurai, and Thiruvarur region).",
+    "photoUrl": "/images/karthick-bni-vp.jpg",
+    "highlights": [
+      {
+        "title": "Leadership Team Management",
+        "description": "Managing the chapter leadership team, driving member growth, and streamlining business referrals across Thiruvarur & Delta districts."
+      },
+      {
+        "title": "LTRT & Cross-Chapter Events",
+        "description": "Organizing Leadership Team Roundtable (LTRT) meets and cross-chapter entrepreneur networking initiatives across the Delta region."
+      }
+    ],
+    "whyItMatters": "Partnering with Karthick Tamilan gives your brand direct market trust and access to an established network of top entrepreneurs, real estate developers, and corporate leaders across the entire Delta region!"
+  },
+  "analytics": {
+    "badge": "Verified Account Insights (@karthick_tamilan)",
+    "title": "REAL AUDIENCE",
+    "titleHighlight": "ANALYTICS & PROOF.",
+    "description": "Verified high-intent demographic breakdown for maximum real estate sales & brand conversion.",
+    "overview": {
+      "contentViews": "12.4M",
+      "viewsGrowth": "+21.4% Growth",
+      "nonFollowersRatio": "78.6%",
+      "followersRatio": "21.4%",
+      "uniqueViewers": "4,045,498",
+      "reelsPlays": "9,500,000 Plays",
+      "postImpressions": "594,000 Impressions",
+      "monthlyGrowth": "+6,600"
+    },
+    "age": {
+      "headline": "70.6% OF AUDIENCE IS AGED 25 TO 44 YEARS",
+      "description": "This is the exact prime age group with active financial savings, bank loan eligibility, and high purchase intent for Real Estate Plot Layouts, Luxury Villas, Commercial Shops, and Consumer Brands!",
+      "decisionMakersPercent": "71%",
+      "decisionMakersNote": "Over 71% of viewers are working professionals and entrepreneurs actively looking to invest money in property, land, and lifestyle upgrades.",
+      "ranges": [
+        { "label": "25–34 Years (Prime Home Buyers)", "pct": "44.9%", "color": "orange" },
+        { "label": "35–44 Years (Senior Business & Land Investors)", "pct": "25.7%", "color": "purple" },
+        { "label": "18–24 Years", "pct": "14.8%", "color": "blue" },
+        { "label": "45–54 Years (Senior Wealth Investors)", "pct": "7.7%", "color": "emerald" }
+      ]
+    },
+    "locations": {
+      "countries": [
+        { "name": "India (Local Market)", "flag": "🇮🇳", "pct": "87.6%", "highlight": true },
+        { "name": "United Arab Emirates (UAE Gulf NRIs)", "flag": "🇦🇪", "pct": "3.3%", "highlight": true },
+        { "name": "Singapore (SEA NRIs)", "flag": "🇸🇬", "pct": "2.5%", "highlight": true },
+        { "name": "Malaysia", "flag": "🇲🇾", "pct": "1.4%", "highlight": false },
+        { "name": "Kuwait", "flag": "🇰🇼", "pct": "1.3%", "highlight": false }
+      ],
+      "cities": [
+        { "name": "Chennai (Metro Buyers)", "icon": "🏙️", "pct": "12.8%", "highlight": true },
+        { "name": "Thiruvarur (Delta Heart)", "icon": "🌾", "pct": "4.3%", "highlight": true },
+        { "name": "Nannilam", "icon": "🌾", "pct": "3.3%", "highlight": false },
+        { "name": "Mannargudi", "icon": "🌾", "pct": "2.8%", "highlight": false },
+        { "name": "Singapore", "icon": "🇸🇬", "pct": "2.5%", "highlight": false }
+      ],
+      "nriFunnelsNote": "Over 8.5% of total reach comes directly from Gulf & SEA NRI investors looking to buy real estate back in Tamil Nadu!",
+      "deltaMonopolyNote": "Dominating Thanjavur, Trichy, Thiruvarur, Nannilam & Mannargudi with hyper-local precision!"
+    },
+    "proofScreenshots": [
+      {
+        "title": "12.4M Views & 9.5M Reels",
+        "subtitle": "Overview Proof",
+        "imageUrl": "/images/analytics/overview.jpg"
+      },
+      {
+        "title": "25–34 Yrs (44.9%) & 35–44 Yrs (25.7%)",
+        "subtitle": "Age Demographics Proof",
+        "imageUrl": "/images/analytics/age.jpg"
+      },
+      {
+        "title": "India 87.6%, UAE 3.3%, SG 2.5%",
+        "subtitle": "Country Reach Proof",
+        "imageUrl": "/images/analytics/countries.jpg"
+      },
+      {
+        "title": "Chennai 12.8%, Thiruvarur 4.3%",
+        "subtitle": "City Reach Proof",
+        "imageUrl": "/images/analytics/cities.jpg"
+      }
+    ]
+  },
+  "growthScenarios": [
+    {
+      "number": "01",
+      "title": "🏡 Real Estate Layout & Plot Sales",
+      "description": "Traditional paper fliers fail to show layout beauty. We produce 4K Sony DSLR & Drone aerial walkthroughs, broadcasting to 70.6% buyers aged 25–44 in Delta & Chennai. We deliver verified lead forms directly to your sales team, driving instant site visit bookings.",
+      "tags": ["✓ 100+ Layouts Sold Out", "Drone Aerials • Site Visit Leads"]
+    },
+    {
+      "number": "02",
+      "title": "🏬 Retail & Grand Showroom Launches",
+      "description": "Creating massive footfall on day one with viral countdown teasers, celebrity influencer presence, and high-impact reel coverage that establishes instant local buzz.",
+      "tags": ["✓ 50+ Grand Openings", "Same-Day Viral Coverage • VIP Walkthroughs"]
+    },
+    {
+      "number": "03",
+      "title": "💎 Luxury Wedding Cinema & NRI Coverage",
+      "description": "KR Studioz provides masterclass wedding cinematography with multi-camera setups, cinematic color grading, and drone shots that capture every sacred ritual with breathtaking emotional depth.",
+      "tags": ["✓ 500+ Weddings Filmed", "4K Sony Alpha Cinema • Cinematic Color Grading"]
+    },
+    {
+      "number": "04",
+      "title": "🌍 NRI Investor Direct Funnels",
+      "description": "Directly targeting Tamil diaspora in UAE, Singapore, and Malaysia with currency-advantage property pitches and remote virtual walkthroughs.",
+      "tags": ["✓ 8.5%+ International Reach", "High Ticket Conversions • WhatsApp Funnels"]
+    }
+  ]
+}

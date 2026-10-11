@@ -143,4 +143,62 @@ export type WeddingPackage = {
   updated_at?: string;
 };
 
+export type WhyChooseUsData = {
+  hero: {
+    badge: string;
+    title: string;
+    titleHighlight: string;
+    description: string;
+    stats: Array<{ value: string; label: string }>;
+  };
+  bniLeadership: {
+    badge: string;
+    chapterName: string;
+    leaderName: string;
+    role: string;
+    subtitle: string;
+    description: string;
+    photoUrl: string;
+    highlights: Array<{ title: string; description: string }>;
+    whyItMatters: string;
+  };
+  analytics: {
+    badge: string;
+    title: string;
+    titleHighlight: string;
+    description: string;
+    overview: {
+      contentViews: string;
+      viewsGrowth: string;
+      nonFollowersRatio: string;
+      followersRatio: string;
+      uniqueViewers: string;
+      reelsPlays: string;
+      postImpressions: string;
+      monthlyGrowth: string;
+    };
+    age: {
+      headline: string;
+      description: string;
+      decisionMakersPercent: string;
+      decisionMakersNote: string;
+      ranges: Array<{ label: string; pct: string; color?: string }>;
+    };
+    locations: {
+      countries: Array<{ name: string; flag: string; pct: string; highlight?: boolean }>;
+      cities: Array<{ name: string; icon: string; pct: string; highlight?: boolean }>;
+      nriFunnelsNote: string;
+      deltaMonopolyNote: string;
+    };
+    proofScreenshots: Array<{ title: string; subtitle: string; imageUrl: string }>;
+  };
+  growthScenarios: Array<{
+    number: string;
+    title: string;
+    description: string;
+    tags: string[];
+  }>;
+};
+
+
 

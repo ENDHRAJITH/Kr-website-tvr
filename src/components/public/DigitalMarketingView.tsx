@@ -1,8 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { MarketingService, ServiceCategory } from '@/types/database'
 import { useTheme } from '@/context/ThemeContext'
+import { slugify } from '@/lib/utils/slugify'
 
 interface DigitalMarketingViewProps {
   initialServices: MarketingService[]
@@ -521,7 +523,7 @@ export default function DigitalMarketingView({
                       </div>
                     </div>
 
-                    <div className="mt-7 flex flex-col sm:flex-row gap-3">
+                    <div className="mt-7 flex flex-wrap gap-3">
                       <button
                         type="button"
                         onClick={() => handleAddToCart(s)}
@@ -529,6 +531,19 @@ export default function DigitalMarketingView({
                       >
                         {addedNotice === s.id ? 'Added ✓' : '+ Add to Enquiry'}
                       </button>
+
+                      <Link
+                        href={`/digital-marketing/${s.name ? slugify(s.name) : s.id}`}
+                        className={`border px-4 py-3 text-xs font-bold uppercase transition flex items-center justify-center gap-1.5 ${
+                          isDarkMode
+                            ? 'border-orange-500/30 text-orange-400 hover:bg-orange-500 hover:text-white'
+                            : 'border-orange-400/50 text-orange-600 hover:bg-orange-500 hover:text-white'
+                        }`}
+                        title="View Details & Share"
+                      >
+                        <span>Details &amp; Share</span>
+                        <span>↗</span>
+                      </Link>
 
                       <button
                         type="button"

@@ -1,36 +1,177 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useTheme } from '@/context/ThemeContext'
+import { WhyChooseUsData } from '@/types/database'
 import {
   Sparkles,
   CheckCircle2,
   XCircle,
   Eye,
   Users,
-  Film,
   MapPin,
   Globe,
-  PieChart,
-  BarChart3,
-  ExternalLink,
-  ShieldCheck,
-  TrendingUp,
-  Building2,
-  Calendar,
   X,
   Maximize2,
   Award,
   Briefcase,
-  Network
+  Network,
+  ShieldCheck
 } from 'lucide-react'
 
-export default function WhyChooseUsView() {
+const FALLBACK_DATA: WhyChooseUsData = {
+  hero: {
+    badge: 'Why Choose Us • Verified Market Authority',
+    title: 'WHY BRANDS & REAL ESTATE DEVELOPERS',
+    titleHighlight: 'TRUST KARTHICK TAMILAN.',
+    description: "We don't just create ad campaigns — we build visual desire backed by 12.4 Million+ verified content views, 70.6% prime investor demographics, and laser-targeted NRI lead funnels.",
+    stats: [
+      { value: '12.4M+', label: '30-Day Content Views' },
+      { value: '4.04M+', label: 'Unique Viewers Reached' },
+      { value: '9.5M+', label: 'Viral Reel Plays' },
+      { value: '70.6%', label: 'Investors Aged 25–44' }
+    ]
+  },
+  bniLeadership: {
+    badge: 'Regional Entrepreneur Leadership',
+    chapterName: 'BNI Emperor Chapter',
+    leaderName: 'KARTHICK TAMILAN',
+    role: 'VICE PRESIDENT — BNI EMPEROR CHAPTER',
+    subtitle: 'Founder, KR Digital Marketing & Studioz',
+    description: 'Karthick Tamilan holds the position of Vice President of the BNI Emperor Chapter in Thiruvarur district (under the BNI Nagapattinam, Karaikal, Mayiladuthurai, and Thiruvarur region).',
+    photoUrl: '/images/karthick-bni-vp.jpg',
+    highlights: [
+      {
+        title: 'Leadership Team Management',
+        description: 'Managing the chapter leadership team, driving member growth, and streamlining business referrals across Thiruvarur & Delta districts.'
+      },
+      {
+        title: 'LTRT & Cross-Chapter Events',
+        description: 'Organizing Leadership Team Roundtable (LTRT) meets and cross-chapter entrepreneur networking initiatives across the Delta region.'
+      }
+    ],
+    whyItMatters: 'Partnering with Karthick Tamilan gives your brand direct market trust and access to an established network of top entrepreneurs, real estate developers, and corporate leaders across the entire Delta region!'
+  },
+  analytics: {
+    badge: 'Verified Account Insights (@karthick_tamilan)',
+    title: 'REAL AUDIENCE',
+    titleHighlight: 'ANALYTICS & PROOF.',
+    description: 'Verified high-intent demographic breakdown for maximum real estate sales & brand conversion.',
+    overview: {
+      contentViews: '12.4M',
+      viewsGrowth: '+21.4% Growth',
+      nonFollowersRatio: '78.6%',
+      followersRatio: '21.4%',
+      uniqueViewers: '4,045,498',
+      reelsPlays: '9,500,000 Plays',
+      postImpressions: '594,000 Impressions',
+      monthlyGrowth: '+6,600'
+    },
+    age: {
+      headline: '70.6% OF AUDIENCE IS AGED 25 TO 44 YEARS',
+      description: 'This is the exact prime age group with active financial savings, bank loan eligibility, and high purchase intent for Real Estate Plot Layouts, Luxury Villas, Commercial Shops, and Consumer Brands!',
+      decisionMakersPercent: '71%',
+      decisionMakersNote: 'Over 71% of viewers are working professionals and entrepreneurs actively looking to invest money in property, land, and lifestyle upgrades.',
+      ranges: [
+        { label: '25–34 Years (Prime Home Buyers)', pct: '44.9%', color: 'orange' },
+        { label: '35–44 Years (Senior Business & Land Investors)', pct: '25.7%', color: 'purple' },
+        { label: '18–24 Years', pct: '14.8%', color: 'blue' },
+        { label: '45–54 Years (Senior Wealth Investors)', pct: '7.7%', color: 'emerald' }
+      ]
+    },
+    locations: {
+      countries: [
+        { name: 'India (Local Market)', flag: '🇮🇳', pct: '87.6%', highlight: true },
+        { name: 'United Arab Emirates (UAE Gulf NRIs)', flag: '🇦🇪', pct: '3.3%', highlight: true },
+        { name: 'Singapore (SEA NRIs)', flag: '🇸🇬', pct: '2.5%', highlight: true },
+        { name: 'Malaysia', flag: '🇲🇾', pct: '1.4%', highlight: false },
+        { name: 'Kuwait', flag: '🇰🇼', pct: '1.3%', highlight: false }
+      ],
+      cities: [
+        { name: 'Chennai (Metro Buyers)', icon: '🏙️', pct: '12.8%', highlight: true },
+        { name: 'Thiruvarur (Delta Heart)', icon: '🌾', pct: '4.3%', highlight: true },
+        { name: 'Nannilam', icon: '🌾', pct: '3.3%', highlight: false },
+        { name: 'Mannargudi', icon: '🌾', pct: '2.8%', highlight: false },
+        { name: 'Singapore', icon: '🇸🇬', pct: '2.5%', highlight: false }
+      ],
+      nriFunnelsNote: 'Over 8.5% of total reach comes directly from Gulf & SEA NRI investors looking to buy real estate back in Tamil Nadu!',
+      deltaMonopolyNote: 'Dominating Thanjavur, Trichy, Thiruvarur, Nannilam & Mannargudi with hyper-local precision!'
+    },
+    proofScreenshots: [
+      {
+        title: '12.4M Views & 9.5M Reels',
+        subtitle: 'Overview Proof',
+        imageUrl: '/images/analytics/overview.jpg'
+      },
+      {
+        title: '25–34 Yrs (44.9%) & 35–44 Yrs (25.7%)',
+        subtitle: 'Age Demographics Proof',
+        imageUrl: '/images/analytics/age.jpg'
+      },
+      {
+        title: 'India 87.6%, UAE 3.3%, SG 2.5%',
+        subtitle: 'Country Reach Proof',
+        imageUrl: '/images/analytics/countries.jpg'
+      },
+      {
+        title: 'Chennai 12.8%, Thiruvarur 4.3%',
+        subtitle: 'City Reach Proof',
+        imageUrl: '/images/analytics/cities.jpg'
+      }
+    ]
+  },
+  growthScenarios: [
+    {
+      number: '01',
+      title: '🏡 Real Estate Layout & Plot Sales',
+      description: 'Traditional paper fliers fail to show layout beauty. We produce 4K Sony DSLR & Drone aerial walkthroughs, broadcasting to 70.6% buyers aged 25–44 in Delta & Chennai. We deliver verified lead forms directly to your sales team, driving instant site visit bookings.',
+      tags: ['✓ 100+ Layouts Sold Out', 'Drone Aerials • Site Visit Leads']
+    },
+    {
+      number: '02',
+      title: '✈️ Gulf & SEA NRI Buyer Acquisition',
+      description: 'With 3.3% reach in UAE and 2.5% in Singapore, our international NRI marketing funnels connect non-resident Tamils looking to purchase real estate back in their hometowns, converting overseas interest into bank transfers.',
+      tags: ['✓ UAE (3.3%) • Singapore (2.5%)', 'International NRI Plot Sales']
+    },
+    {
+      number: '03',
+      title: '📢 Local Business & Retail Hype',
+      description: 'For retail grand openings, jewelry stores, restaurants, and corporate brands: our 50+ local Instagram pages connect (60KM radius) and 5 top influencers create massive local footfall and immediate order inquiries.',
+      tags: ['✓ 50+ Local Insta Pages Connect', 'Surrounding 60KM Footfall']
+    },
+    {
+      number: '04',
+      title: '📈 Revenue Scaling & ROAS Optimization',
+      description: 'Over 1,500+ ad campaigns executed prove that our funnels eliminate wasted ad dollars. We track cost-per-lead (CPL) and return on ad spend (ROAS) to scale monthly revenue consistently.',
+      tags: ['✓ 1,500+ Ad Campaigns Executed', 'Maximum ROAS Optimization']
+    }
+  ]
+}
+
+interface WhyChooseUsViewProps {
+  initialData?: WhyChooseUsData
+}
+
+export default function WhyChooseUsView({ initialData }: WhyChooseUsViewProps) {
   const { isDarkMode } = useTheme()
+  const [data, setData] = useState<WhyChooseUsData>(initialData || FALLBACK_DATA)
   const [activeAnalyticsTab, setActiveAnalyticsTab] = useState<'overview' | 'age' | 'locations' | 'proof'>('overview')
   const [lightboxImg, setLightboxImg] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetch('/api/why-choose-us')
+      .then((res) => res.json())
+      .then((resData) => {
+        if (resData && resData.data) {
+          setData(resData.data)
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  const { hero, bniLeadership, analytics, growthScenarios } = data || FALLBACK_DATA
 
   return (
     <main className={`transition-colors duration-500 ${isDarkMode ? 'bg-[#050505] text-white' : 'bg-white text-slate-900'}`}>
@@ -41,41 +182,33 @@ export default function WhyChooseUsView() {
         <div className="max-w-7xl mx-auto text-center">
           <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-[#F97316]/15 text-[#F97316] border border-[#F97316]/30 mb-6">
             <Sparkles className="w-4 h-4 animate-pulse" />
-            <span>Why Choose Us &bull; Verified Market Authority</span>
+            <span>{hero?.badge || 'Why Choose Us • Verified Market Authority'}</span>
           </div>
 
           <h1 className={`font-display font-black uppercase tracking-tight leading-[.92] text-4xl sm:text-5xl md:text-6xl lg:text-7xl max-w-5xl mx-auto ${
             isDarkMode ? 'text-white' : 'text-zinc-900'
           }`}>
-            WHY BRANDS &amp; REAL ESTATE DEVELOPERS <br className="hidden sm:inline" />
-            <span className="text-[#F97316]">TRUST KARTHICK TAMILAN.</span>
+            {hero?.title || 'WHY BRANDS & REAL ESTATE DEVELOPERS'} <br className="hidden sm:inline" />
+            <span className="text-[#F97316]">{hero?.titleHighlight || 'TRUST KARTHICK TAMILAN.'}</span>
           </h1>
 
           <p className={`mt-6 text-base sm:text-lg md:text-xl max-w-3xl mx-auto leading-relaxed ${
             isDarkMode ? 'text-white/70' : 'text-slate-600'
           }`}>
-            We don&apos;t just create ad campaigns — we build visual desire backed by <strong>12.4 Million+ verified content views</strong>, <strong>70.6% prime investor demographics</strong>, and laser-targeted NRI lead funnels.
+            {hero?.description || "We don't just create ad campaigns — we build visual desire backed by 12.4 Million+ verified content views, 70.6% prime investor demographics, and laser-targeted NRI lead funnels."}
           </p>
 
           {/* Quick Stats Banner from Verified IG Insights */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-5xl mx-auto mt-10 pt-8 border-t border-slate-200 dark:border-white/10">
-            <div className="p-4 rounded-2xl bg-[#F97316]/10 border border-[#F97316]/30 text-center">
-              <p className="font-display text-3xl md:text-4xl lg:text-5xl font-black text-[#F97316]">12.4M+</p>
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70 mt-1">30-Day Content Views</p>
+          {hero?.stats && hero.stats.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-5xl mx-auto mt-10 pt-8 border-t border-slate-200 dark:border-white/10">
+              {hero.stats.map((stat, idx) => (
+                <div key={idx} className="p-4 rounded-2xl bg-[#F97316]/10 border border-[#F97316]/30 text-center">
+                  <p className="font-display text-3xl md:text-4xl lg:text-5xl font-black text-[#F97316]">{stat.value}</p>
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70 mt-1">{stat.label}</p>
+                </div>
+              ))}
             </div>
-            <div className="p-4 rounded-2xl bg-[#F97316]/10 border border-[#F97316]/30 text-center">
-              <p className="font-display text-3xl md:text-4xl lg:text-5xl font-black text-[#F97316]">4.04M+</p>
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70 mt-1">Unique Viewers Reached</p>
-            </div>
-            <div className="p-4 rounded-2xl bg-[#F97316]/10 border border-[#F97316]/30 text-center">
-              <p className="font-display text-3xl md:text-4xl lg:text-5xl font-black text-[#F97316]">9.5M+</p>
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70 mt-1">Viral Reel Plays</p>
-            </div>
-            <div className="p-4 rounded-2xl bg-[#F97316]/10 border border-[#F97316]/30 text-center">
-              <p className="font-display text-3xl md:text-4xl lg:text-5xl font-black text-[#F97316]">70.6%</p>
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-white/70 mt-1">Investors Aged 25–44</p>
-            </div>
-          </div>
+          )}
         </div>
       </section>
 
@@ -91,8 +224,8 @@ export default function WhyChooseUsView() {
               <div className="absolute -inset-1.5 rounded-3xl bg-gradient-to-r from-[#F97316] via-amber-500 to-orange-600 blur-lg opacity-70 group-hover:opacity-100 transition duration-500" />
               <div className="relative rounded-2xl overflow-hidden border border-white/20 bg-zinc-950 shadow-2xl aspect-[4/5]">
                 <Image
-                  src="/images/karthick-bni-vp.jpg"
-                  alt="Karthick Tamilan - Vice President BNI Emperor Chapter"
+                  src={bniLeadership?.photoUrl || '/images/karthick-bni-vp.jpg'}
+                  alt={`${bniLeadership?.leaderName || 'Karthick Tamilan'} - BNI Vice President`}
                   fill
                   className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
                   priority
@@ -106,13 +239,13 @@ export default function WhyChooseUsView() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent p-6 flex flex-col justify-end">
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F97316] text-black text-[11px] font-black uppercase tracking-wider w-fit mb-2">
                     <Award className="w-3.5 h-3.5" />
-                    <span>BNI Vice President</span>
+                    <span>{bniLeadership?.chapterName || 'BNI Vice President'}</span>
                   </div>
                   <h3 className="font-display text-2xl md:text-3xl font-black text-white uppercase tracking-tight">
-                    KARTHICK TAMILAN
+                    {bniLeadership?.leaderName || 'KARTHICK TAMILAN'}
                   </h3>
                   <p className="text-xs text-orange-400 font-bold mt-0.5">
-                    Founder, KR Digital Marketing &amp; Studioz
+                    {bniLeadership?.subtitle || 'Founder, KR Digital Marketing & Studioz'}
                   </p>
                 </div>
               </div>
@@ -123,14 +256,14 @@ export default function WhyChooseUsView() {
               <div className="flex flex-wrap items-center gap-3">
                 <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full text-xs font-extrabold uppercase tracking-widest bg-[#F97316]/15 text-[#F97316] border border-[#F97316]/30">
                   <Briefcase className="w-4 h-4" />
-                  <span>Regional Entrepreneur Leadership</span>
+                  <span>{bniLeadership?.badge || 'Regional Entrepreneur Leadership'}</span>
                 </div>
 
                 {/* BNI Official Logo Badge */}
                 <div className="inline-flex items-center gap-3 bg-white dark:bg-zinc-900 border border-red-500/30 px-3.5 py-1.5 rounded-full shadow-sm">
                   <img src="/images/bni-logo.png" alt="BNI Logo" className="h-5 w-auto object-contain" />
                   <span className="text-xs font-black text-red-600 dark:text-red-400 uppercase tracking-wider border-l border-slate-200 dark:border-white/15 pl-2.5">
-                    BNI Emperor Chapter
+                    {bniLeadership?.chapterName || 'BNI Emperor Chapter'}
                   </span>
                 </div>
               </div>
@@ -138,51 +271,43 @@ export default function WhyChooseUsView() {
               <h2 className={`font-display text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight leading-[0.95] ${
                 isDarkMode ? 'text-white' : 'text-zinc-900'
               }`}>
-                VICE PRESIDENT — <span className="text-[#F97316]">BNI EMPEROR CHAPTER</span>
+                {bniLeadership?.role || 'VICE PRESIDENT — BNI EMPEROR CHAPTER'}
               </h2>
 
               <p className={`text-base sm:text-lg font-medium leading-relaxed ${
                 isDarkMode ? 'text-white/80' : 'text-slate-700'
               }`}>
-                Karthick Tamilan holds the position of <strong>Vice President of the BNI Emperor Chapter</strong> in Thiruvarur district (under the <strong>BNI Nagapattinam, Karaikal, Mayiladuthurai, and Thiruvarur region</strong>).
+                {bniLeadership?.description || 'Karthick Tamilan holds the position of Vice President of the BNI Emperor Chapter in Thiruvarur district.'}
               </p>
 
-              <div className="grid sm:grid-cols-2 gap-4 pt-2">
-                <div className={`p-5 rounded-2xl border transition ${
-                  isDarkMode ? 'bg-zinc-900/90 border-white/10' : 'bg-white border-slate-200 shadow-sm'
-                }`}>
-                  <div className="w-10 h-10 rounded-xl bg-[#F97316]/15 text-[#F97316] flex items-center justify-center font-bold mb-3">
-                    <Users className="w-5 h-5" />
-                  </div>
-                  <h4 className="font-display font-extrabold text-base uppercase text-zinc-900 dark:text-white">
-                    Leadership Team Management
-                  </h4>
-                  <p className="text-xs text-slate-500 dark:text-white/60 mt-1.5 leading-relaxed">
-                    Managing the chapter leadership team, driving member growth, and streamlining business referrals across Thiruvarur &amp; Delta districts.
-                  </p>
+              {bniLeadership?.highlights && bniLeadership.highlights.length > 0 && (
+                <div className="grid sm:grid-cols-2 gap-4 pt-2">
+                  {bniLeadership.highlights.map((item, idx) => (
+                    <div key={idx} className={`p-5 rounded-2xl border transition ${
+                      isDarkMode ? 'bg-zinc-900/90 border-white/10' : 'bg-white border-slate-200 shadow-sm'
+                    }`}>
+                      <div className="w-10 h-10 rounded-xl bg-[#F97316]/15 text-[#F97316] flex items-center justify-center font-bold mb-3">
+                        {idx === 0 ? <Users className="w-5 h-5" /> : <Network className="w-5 h-5" />}
+                      </div>
+                      <h4 className="font-display font-extrabold text-base uppercase text-zinc-900 dark:text-white">
+                        {item.title}
+                      </h4>
+                      <p className="text-xs text-slate-500 dark:text-white/60 mt-1.5 leading-relaxed">
+                        {item.description}
+                      </p>
+                    </div>
+                  ))}
                 </div>
+              )}
 
-                <div className={`p-5 rounded-2xl border transition ${
-                  isDarkMode ? 'bg-zinc-900/90 border-white/10' : 'bg-white border-slate-200 shadow-sm'
-                }`}>
-                  <div className="w-10 h-10 rounded-xl bg-[#F97316]/15 text-[#F97316] flex items-center justify-center font-bold mb-3">
-                    <Network className="w-5 h-5" />
+              {bniLeadership?.whyItMatters && (
+                <div className="p-5 rounded-2xl bg-[#F97316]/10 border border-[#F97316]/30 flex items-start gap-4">
+                  <ShieldCheck className="w-6 h-6 text-[#F97316] shrink-0 mt-0.5" />
+                  <div className="text-xs sm:text-sm text-slate-700 dark:text-white/80 leading-relaxed">
+                    <strong>Why this matters for your business:</strong> {bniLeadership.whyItMatters}
                   </div>
-                  <h4 className="font-display font-extrabold text-base uppercase text-zinc-900 dark:text-white">
-                    LTRT &amp; Cross-Chapter Events
-                  </h4>
-                  <p className="text-xs text-slate-500 dark:text-white/60 mt-1.5 leading-relaxed">
-                    Organizing Leadership Team Roundtable (LTRT) meets and cross-chapter entrepreneur networking initiatives across the Delta region.
-                  </p>
                 </div>
-              </div>
-
-              <div className="p-5 rounded-2xl bg-[#F97316]/10 border border-[#F97316]/30 flex items-start gap-4">
-                <ShieldCheck className="w-6 h-6 text-[#F97316] shrink-0 mt-0.5" />
-                <div className="text-xs sm:text-sm text-slate-700 dark:text-white/80 leading-relaxed">
-                  <strong>Why this matters for your business:</strong> Partnering with Karthick Tamilan gives your brand direct market trust and access to an established network of top entrepreneurs, real estate developers, and corporate leaders across the entire Delta region!
-                </div>
-              </div>
+              )}
             </div>
 
           </div>
@@ -199,16 +324,16 @@ export default function WhyChooseUsView() {
             <div>
               <div className="inline-flex items-center gap-2 text-xs font-extrabold uppercase tracking-widest text-[#F97316] mb-2">
                 <ShieldCheck className="w-4 h-4" />
-                <span>Verified Account Insights (@karthick_tamilan)</span>
+                <span>{analytics?.badge || 'Verified Account Insights (@karthick_tamilan)'}</span>
               </div>
               <h2 className={`font-display text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight ${
                 isDarkMode ? 'text-white' : 'text-zinc-900'
               }`}>
-                REAL AUDIENCE <span className="text-[#F97316]">ANALYTICS &amp; PROOF.</span>
+                {analytics?.title || 'REAL AUDIENCE'} <span className="text-[#F97316]">{analytics?.titleHighlight || 'ANALYTICS & PROOF.'}</span>
               </h2>
             </div>
             <p className={`max-w-md text-xs sm:text-sm leading-relaxed ${isDarkMode ? 'text-white/60' : 'text-slate-600'}`}>
-              Verified high-intent demographic breakdown for maximum real estate sales &amp; brand conversion.
+              {analytics?.description || 'Verified high-intent demographic breakdown for maximum real estate sales & brand conversion.'}
             </p>
           </div>
 
@@ -226,7 +351,7 @@ export default function WhyChooseUsView() {
               }`}
             >
               <Eye className="w-4 h-4" />
-              <span>12.4M Views Overview</span>
+              <span>{analytics?.overview?.contentViews || '12.4M'} Views Overview</span>
             </button>
 
             <button
@@ -241,7 +366,7 @@ export default function WhyChooseUsView() {
               }`}
             >
               <Users className="w-4 h-4" />
-              <span>Age &amp; Buying Power (25–44 Yrs)</span>
+              <span>Age & Buying Power (25–44 Yrs)</span>
             </button>
 
             <button
@@ -256,7 +381,7 @@ export default function WhyChooseUsView() {
               }`}
             >
               <Globe className="w-4 h-4" />
-              <span>Locations (India, UAE, Singapore &amp; Delta)</span>
+              <span>Locations (India, UAE, Singapore & Delta)</span>
             </button>
 
             <button
@@ -276,7 +401,7 @@ export default function WhyChooseUsView() {
           </div>
 
           {/* TAB 1: OVERVIEW & REACH */}
-          {activeAnalyticsTab === 'overview' && (
+          {activeAnalyticsTab === 'overview' && analytics?.overview && (
             <div className="grid lg:grid-cols-3 gap-8">
               {/* Views Breakdown */}
               <div className={`p-7 rounded-2xl border ${
@@ -284,23 +409,23 @@ export default function WhyChooseUsView() {
               }`}>
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-extrabold text-[#F97316] uppercase tracking-wider">Content Views (30 Days)</span>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400">+21.4% Growth</span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400">{analytics.overview.viewsGrowth}</span>
                 </div>
-                <p className="font-display font-black text-4xl sm:text-5xl text-[#F97316] mt-3">12.4M</p>
+                <p className="font-display font-black text-4xl sm:text-5xl text-[#F97316] mt-3">{analytics.overview.contentViews}</p>
                 <p className="text-xs text-slate-500 dark:text-white/60 mt-1">Total video &amp; post impressions served</p>
 
                 {/* Viral Ratio Progress Bar */}
                 <div className="mt-6 pt-6 border-t border-slate-200 dark:border-white/10 space-y-3">
                   <div className="flex justify-between text-xs font-bold">
-                    <span className="text-[#F97316]">78.6% Non-Followers (Viral Organic Reach)</span>
-                    <span className="text-emerald-400">21.4% Followers</span>
+                    <span className="text-[#F97316]">{analytics.overview.nonFollowersRatio} Non-Followers</span>
+                    <span className="text-emerald-400">{analytics.overview.followersRatio} Followers</span>
                   </div>
                   <div className="w-full h-3 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden flex">
-                    <div className="h-full bg-[#F97316]" style={{ width: '78.6%' }} />
-                    <div className="h-full bg-emerald-500" style={{ width: '21.4%' }} />
+                    <div className="h-full bg-[#F97316]" style={{ width: analytics.overview.nonFollowersRatio }} />
+                    <div className="h-full bg-emerald-500" style={{ width: analytics.overview.followersRatio }} />
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-white/50 leading-relaxed">
-                    ⚡ <strong>78.6% of viewers are non-followers</strong>, meaning your promotional video goes viral to completely new prospective buyers every campaign!
+                    ⚡ <strong>{analytics.overview.nonFollowersRatio} of viewers are non-followers</strong>, meaning your promotional video goes viral to completely new prospective buyers every campaign!
                   </p>
                 </div>
               </div>
@@ -313,13 +438,13 @@ export default function WhyChooseUsView() {
                   <span className="text-xs font-extrabold text-[#F97316] uppercase tracking-wider">Unique Viewers Reached</span>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-500/20 text-purple-400">Verified</span>
                 </div>
-                <p className="font-display font-black text-4xl sm:text-5xl text-purple-400 mt-3">4,045,498</p>
+                <p className="font-display font-black text-4xl sm:text-5xl text-purple-400 mt-3">{analytics.overview.uniqueViewers}</p>
                 <p className="text-xs text-slate-500 dark:text-white/60 mt-1">Over 4 Million unique individuals reached</p>
 
                 <div className="mt-6 pt-6 border-t border-slate-200 dark:border-white/10 space-y-3">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-bold">Reels Engagement:</span>
-                    <span className="font-extrabold text-[#F97316]">9,500,000 Plays</span>
+                    <span className="font-extrabold text-[#F97316]">{analytics.overview.reelsPlays}</span>
                   </div>
                   <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden">
                     <div className="h-full bg-[#F97316]" style={{ width: '94.1%' }} />
@@ -327,7 +452,7 @@ export default function WhyChooseUsView() {
 
                   <div className="flex items-center justify-between text-xs pt-2">
                     <span className="font-bold">Posts &amp; Carousels:</span>
-                    <span className="font-extrabold text-blue-400">594,000 Impressions</span>
+                    <span className="font-extrabold text-blue-400">{analytics.overview.postImpressions}</span>
                   </div>
                   <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden">
                     <div className="h-full bg-blue-500" style={{ width: '5.9%' }} />
@@ -341,9 +466,9 @@ export default function WhyChooseUsView() {
               }`}>
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-extrabold text-[#F97316] uppercase tracking-wider">Net Monthly Growth</span>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-400">+6.6K New</span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-400">Verified</span>
                 </div>
-                <p className="font-display font-black text-4xl sm:text-5xl text-amber-400 mt-3">+6,600</p>
+                <p className="font-display font-black text-4xl sm:text-5xl text-amber-400 mt-3">{analytics.overview.monthlyGrowth}</p>
                 <p className="text-xs text-slate-500 dark:text-white/60 mt-1">Organic new followers gained every 30 days</p>
 
                 <div className="mt-6 pt-6 border-t border-slate-200 dark:border-white/10 space-y-2 text-xs">
@@ -356,7 +481,7 @@ export default function WhyChooseUsView() {
           )}
 
           {/* TAB 2: AGE RANGE & PURCHASING POWER */}
-          {activeAnalyticsTab === 'age' && (
+          {activeAnalyticsTab === 'age' && analytics?.age && (
             <div className={`p-8 md:p-10 rounded-2xl border ${
               isDarkMode ? 'bg-zinc-900/90 border-white/10' : 'bg-white border-slate-200 shadow-md'
             }`}>
@@ -366,89 +491,41 @@ export default function WhyChooseUsView() {
                     <span>🔥 High-Purchasing Power Demographics</span>
                   </div>
                   <h3 className="font-display text-2xl sm:text-3xl font-black uppercase text-zinc-900 dark:text-white">
-                    70.6% OF AUDIENCE IS AGED <span className="text-[#F97316]">25 TO 44 YEARS</span>
+                    {analytics.age.headline}
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-600 dark:text-white/70 mt-2 leading-relaxed">
-                    This is the <strong>exact prime age group</strong> with active financial savings, bank loan eligibility, and high purchase intent for Real Estate Plot Layouts, Luxury Villas, Commercial Shops, and Consumer Brands!
+                    {analytics.age.description}
                   </p>
 
                   {/* Age Range Progress Bars */}
                   <div className="mt-8 space-y-4">
-                    {/* 25-34 */}
-                    <div>
-                      <div className="flex justify-between text-xs font-bold mb-1">
-                        <span className="text-zinc-900 dark:text-white flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 rounded-full bg-[#F97316]" />
-                          <span>25–34 Years (Prime Home Buyers)</span>
-                        </span>
-                        <span className="text-[#F97316] font-black text-sm">44.9%</span>
+                    {analytics.age.ranges.map((rng, idx) => (
+                      <div key={idx}>
+                        <div className="flex justify-between text-xs font-bold mb-1">
+                          <span className="text-zinc-900 dark:text-white flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full bg-[#F97316]" />
+                            <span>{rng.label}</span>
+                          </span>
+                          <span className="text-[#F97316] font-black text-sm">{rng.pct}</span>
+                        </div>
+                        <div className="w-full h-3 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden p-0.5">
+                          <div className="h-full bg-gradient-to-r from-[#F97316] to-amber-400 rounded-full" style={{ width: rng.pct }} />
+                        </div>
                       </div>
-                      <div className="w-full h-3.5 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden p-0.5">
-                        <div className="h-full bg-gradient-to-r from-[#F97316] to-amber-400 rounded-full" style={{ width: '44.9%' }} />
-                      </div>
-                    </div>
-
-                    {/* 35-44 */}
-                    <div>
-                      <div className="flex justify-between text-xs font-bold mb-1">
-                        <span className="text-zinc-900 dark:text-white flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 rounded-full bg-purple-500" />
-                          <span>35–44 Years (Senior Business &amp; Land Investors)</span>
-                        </span>
-                        <span className="text-purple-400 font-black text-sm">25.7%</span>
-                      </div>
-                      <div className="w-full h-3.5 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden p-0.5">
-                        <div className="h-full bg-purple-500 rounded-full" style={{ width: '25.7%' }} />
-                      </div>
-                    </div>
-
-                    {/* 18-24 */}
-                    <div>
-                      <div className="flex justify-between text-xs font-bold mb-1">
-                        <span className="text-zinc-900 dark:text-white flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-blue-500" />
-                          <span>18–24 Years</span>
-                        </span>
-                        <span className="text-slate-500 dark:text-white/60">14.8%</span>
-                      </div>
-                      <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden">
-                        <div className="h-full bg-blue-500" style={{ width: '14.8%' }} />
-                      </div>
-                    </div>
-
-                    {/* 45-54 */}
-                    <div>
-                      <div className="flex justify-between text-xs font-bold mb-1">
-                        <span className="text-zinc-900 dark:text-white flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                          <span>45–54 Years (Senior Wealth Investors)</span>
-                        </span>
-                        <span className="text-emerald-400 font-bold">7.7%</span>
-                      </div>
-                      <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden">
-                        <div className="h-full bg-emerald-500" style={{ width: '7.7%' }} />
-                      </div>
-                    </div>
-
-                    {/* Others */}
-                    <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-white/50 pt-2 border-t border-slate-200 dark:border-white/10">
-                      <span>13–17 Yrs: 3.3%</span>
-                      <span>55–64 Yrs: 2.6%</span>
-                      <span>65+ Yrs: 1.0%</span>
-                    </div>
+                    ))}
                   </div>
                 </div>
 
                 {/* Age Highlight Card */}
                 <div className="p-6 rounded-2xl bg-[#F97316]/10 border border-[#F97316]/30 text-center">
                   <div className="w-16 h-16 rounded-full bg-[#F97316] text-black font-black text-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    71%
+                    {analytics.age.decisionMakersPercent}
                   </div>
                   <h4 className="font-display font-black text-xl text-zinc-900 dark:text-white uppercase">
                     Decision Makers
                   </h4>
                   <p className="text-xs text-slate-600 dark:text-white/70 mt-2 leading-relaxed">
-                    Over 71% of viewers are working professionals and entrepreneurs actively looking to invest money in property, land, and lifestyle upgrades.
+                    {analytics.age.decisionMakersNote}
                   </p>
                 </div>
               </div>
@@ -456,7 +533,7 @@ export default function WhyChooseUsView() {
           )}
 
           {/* TAB 3: LOCATIONS (INDIA, UAE, SINGAPORE & DELTA CITIES) */}
-          {activeAnalyticsTab === 'locations' && (
+          {activeAnalyticsTab === 'locations' && analytics?.locations && (
             <div className="grid lg:grid-cols-2 gap-8">
               {/* Top Countries */}
               <div className={`p-8 rounded-2xl border ${
@@ -473,60 +550,24 @@ export default function WhyChooseUsView() {
                 </div>
 
                 <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-xs font-bold mb-1">
-                      <span>🇮🇳 India (Local Market)</span>
-                      <span className="text-[#F97316] font-black">87.6%</span>
+                  {analytics.locations.countries.map((cntry, idx) => (
+                    <div key={idx}>
+                      <div className="flex justify-between text-xs font-bold mb-1">
+                        <span>{cntry.flag} {cntry.name}</span>
+                        <span className="text-[#F97316] font-black">{cntry.pct}</span>
+                      </div>
+                      <div className="w-full h-3 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden">
+                        <div className="h-full bg-[#F97316]" style={{ width: cntry.pct }} />
+                      </div>
                     </div>
-                    <div className="w-full h-3 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden">
-                      <div className="h-full bg-[#F97316]" style={{ width: '87.6%' }} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-xs font-bold mb-1">
-                      <span className="text-emerald-400 font-bold">🇦🇪 United Arab Emirates (UAE Gulf NRIs)</span>
-                      <span className="text-emerald-400 font-black">3.3%</span>
-                    </div>
-                    <div className="w-full h-3 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden">
-                      <div className="h-full bg-emerald-500" style={{ width: '3.3%' }} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-xs font-bold mb-1">
-                      <span className="text-purple-400 font-bold">🇸🇬 Singapore (SEA NRIs)</span>
-                      <span className="text-purple-400 font-black">2.5%</span>
-                    </div>
-                    <div className="w-full h-3 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden">
-                      <div className="h-full bg-purple-500" style={{ width: '2.5%' }} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-xs font-bold mb-1">
-                      <span>🇲🇾 Malaysia</span>
-                      <span className="text-slate-500 dark:text-white/60">1.4%</span>
-                    </div>
-                    <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden">
-                      <div className="h-full bg-blue-500" style={{ width: '1.4%' }} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-xs font-bold mb-1">
-                      <span>🇰🇼 Kuwait</span>
-                      <span className="text-slate-500 dark:text-white/60">1.3%</span>
-                    </div>
-                    <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden">
-                      <div className="h-full bg-amber-500" style={{ width: '1.3%' }} />
-                    </div>
-                  </div>
+                  ))}
                 </div>
 
-                <div className="mt-6 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400 font-bold">
-                  💎 <strong>NRI Investor Funnels:</strong> Over 8.5% of total reach comes directly from Gulf &amp; SEA NRI investors looking to buy real estate back in Tamil Nadu!
-                </div>
+                {analytics.locations.nriFunnelsNote && (
+                  <div className="mt-6 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-400 font-bold">
+                    💎 <strong>NRI Investor Funnels:</strong> {analytics.locations.nriFunnelsNote}
+                  </div>
+                )}
               </div>
 
               {/* Top Cities */}
@@ -544,115 +585,49 @@ export default function WhyChooseUsView() {
                 </div>
 
                 <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-xs font-bold mb-1">
-                      <span>🏙️ Chennai (Metro Buyers)</span>
-                      <span className="text-[#F97316] font-black">12.8%</span>
+                  {analytics.locations.cities.map((city, idx) => (
+                    <div key={idx}>
+                      <div className="flex justify-between text-xs font-bold mb-1">
+                        <span>{city.icon} {city.name}</span>
+                        <span className="text-[#F97316] font-black">{city.pct}</span>
+                      </div>
+                      <div className="w-full h-3 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden">
+                        <div className="h-full bg-[#F97316]" style={{ width: city.pct }} />
+                      </div>
                     </div>
-                    <div className="w-full h-3 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden">
-                      <div className="h-full bg-[#F97316]" style={{ width: '12.8%' }} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-xs font-bold mb-1">
-                      <span>🌾 Thiruvarur (Delta Heart)</span>
-                      <span className="text-amber-400 font-black">4.3%</span>
-                    </div>
-                    <div className="w-full h-3 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden">
-                      <div className="h-full bg-amber-400" style={{ width: '4.3%' }} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-xs font-bold mb-1">
-                      <span>🌾 Nannilam</span>
-                      <span className="text-amber-400 font-black">3.3%</span>
-                    </div>
-                    <div className="w-full h-3 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden">
-                      <div className="h-full bg-amber-400" style={{ width: '3.3%' }} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-xs font-bold mb-1">
-                      <span>🌾 Mannargudi</span>
-                      <span className="text-amber-400 font-black">2.8%</span>
-                    </div>
-                    <div className="w-full h-3 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden">
-                      <div className="h-full bg-amber-400" style={{ width: '2.8%' }} />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-xs font-bold mb-1">
-                      <span>🇸🇬 Singapore</span>
-                      <span className="text-purple-400 font-black">2.5%</span>
-                    </div>
-                    <div className="w-full h-3 rounded-full bg-slate-200 dark:bg-zinc-800 overflow-hidden">
-                      <div className="h-full bg-purple-400" style={{ width: '2.5%' }} />
-                    </div>
-                  </div>
+                  ))}
                 </div>
 
-                <div className="mt-6 p-3 rounded-xl bg-orange-500/10 border border-orange-500/20 text-xs text-[#F97316] font-bold">
-                  🎯 <strong>Delta Region Monopoly:</strong> Dominating Thanjavur, Trichy, Thiruvarur, Nannilam &amp; Mannargudi with hyper-local precision!
-                </div>
+                {analytics.locations.deltaMonopolyNote && (
+                  <div className="mt-6 p-3 rounded-xl bg-orange-500/10 border border-orange-500/20 text-xs text-[#F97316] font-bold">
+                    🎯 <strong>Delta Region Monopoly:</strong> {analytics.locations.deltaMonopolyNote}
+                  </div>
+                )}
               </div>
             </div>
           )}
 
           {/* TAB 4: VERIFIED SCREENSHOTS PROOF LIGHTBOX GALLERY */}
-          {activeAnalyticsTab === 'proof' && (
+          {activeAnalyticsTab === 'proof' && analytics?.proofScreenshots && (
             <div className="space-y-6">
               <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/20 text-xs text-[#F97316] font-bold text-center">
                 📷 Tap any verified Instagram Insights screenshot to view in full screen resolution.
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div
-                  onClick={() => setLightboxImg('/images/analytics/overview.jpg')}
-                  className="group relative rounded-2xl overflow-hidden border border-white/10 bg-zinc-900 cursor-pointer aspect-[9/16] shadow-lg hover:border-[#F97316] transition"
-                >
-                  <img src="/images/analytics/overview.jpg" alt="12.4M Views Overview" className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-4 flex flex-col justify-end">
-                    <p className="text-xs font-extrabold text-white">12.4M Views &amp; 9.5M Reels</p>
-                    <p className="text-[10px] text-orange-400 font-mono">Overview Proof</p>
+                {analytics.proofScreenshots.map((item, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => setLightboxImg(item.imageUrl)}
+                    className="group relative rounded-2xl overflow-hidden border border-white/10 bg-zinc-900 cursor-pointer aspect-[9/16] shadow-lg hover:border-[#F97316] transition"
+                  >
+                    <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-4 flex flex-col justify-end">
+                      <p className="text-xs font-extrabold text-white">{item.title}</p>
+                      <p className="text-[10px] text-orange-400 font-mono">{item.subtitle}</p>
+                    </div>
                   </div>
-                </div>
-
-                <div
-                  onClick={() => setLightboxImg('/images/analytics/age.jpg')}
-                  className="group relative rounded-2xl overflow-hidden border border-white/10 bg-zinc-900 cursor-pointer aspect-[9/16] shadow-lg hover:border-[#F97316] transition"
-                >
-                  <img src="/images/analytics/age.jpg" alt="Age Range 25-44 Yrs" className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-4 flex flex-col justify-end">
-                    <p className="text-xs font-extrabold text-white">25–34 Yrs (44.9%) &amp; 35–44 Yrs (25.7%)</p>
-                    <p className="text-[10px] text-orange-400 font-mono">Age Demographics Proof</p>
-                  </div>
-                </div>
-
-                <div
-                  onClick={() => setLightboxImg('/images/analytics/countries.jpg')}
-                  className="group relative rounded-2xl overflow-hidden border border-white/10 bg-zinc-900 cursor-pointer aspect-[9/16] shadow-lg hover:border-[#F97316] transition"
-                >
-                  <img src="/images/analytics/countries.jpg" alt="India, UAE & Singapore Reach" className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-4 flex flex-col justify-end">
-                    <p className="text-xs font-extrabold text-white">India 87.6%, UAE 3.3%, SG 2.5%</p>
-                    <p className="text-[10px] text-orange-400 font-mono">Country Reach Proof</p>
-                  </div>
-                </div>
-
-                <div
-                  onClick={() => setLightboxImg('/images/analytics/cities.jpg')}
-                  className="group relative rounded-2xl overflow-hidden border border-white/10 bg-zinc-900 cursor-pointer aspect-[9/16] shadow-lg hover:border-[#F97316] transition"
-                >
-                  <img src="/images/analytics/cities.jpg" alt="Chennai & Delta Cities" className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent p-4 flex flex-col justify-end">
-                    <p className="text-xs font-extrabold text-white">Chennai 12.8%, Thiruvarur 4.3%</p>
-                    <p className="text-[10px] text-orange-400 font-mono">City Reach Proof</p>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           )}
@@ -660,100 +635,49 @@ export default function WhyChooseUsView() {
       </section>
 
       {/* 03 — REAL ESTATE & BRAND GROWTH SCENARIOS */}
-      <section className={`px-5 md:px-8 py-20 md:py-28 border-b ${
-        isDarkMode ? 'bg-zinc-950/80 border-white/10' : 'bg-slate-50 border-slate-200'
-      }`}>
-        <div className="max-w-7xl mx-auto space-y-16">
-          <div className="text-center max-w-3xl mx-auto space-y-3">
-            <h2 className={`font-display text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight ${
-              isDarkMode ? 'text-white' : 'text-zinc-900'
-            }`}>
-              REAL ESTATE &amp; BRAND <span className="text-[#F97316]">GROWTH SCENARIOS</span>
-            </h2>
-            <p className={`text-sm md:text-base ${isDarkMode ? 'text-white/60' : 'text-slate-600'}`}>
-              How our data-driven marketing funnels turn online reach into actual booked transactions.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Scenario 1 */}
-            <div className={`p-8 md:p-10 rounded-2xl border transition-all duration-300 relative overflow-hidden group ${
-              isDarkMode ? 'bg-zinc-900/90 border-white/10 hover:border-[#F97316]' : 'bg-white border-slate-200 shadow-md hover:border-[#F97316]'
-            }`}>
-              <div className="w-14 h-14 rounded-2xl bg-[#F97316]/15 text-[#F97316] flex items-center justify-center font-display text-2xl font-black mb-6">
-                01
-              </div>
-              <h3 className={`font-display text-2xl sm:text-3xl font-bold uppercase tracking-tight ${isDarkMode ? 'text-white' : 'text-zinc-900'}`}>
-                🏡 Real Estate Layout &amp; Plot Sales
-              </h3>
-              <p className={`mt-4 text-sm md:text-base leading-relaxed ${isDarkMode ? 'text-white/70' : 'text-slate-600'}`}>
-                Traditional paper fliers fail to show layout beauty. We produce <strong>4K Sony DSLR &amp; Drone aerial walkthroughs</strong>, broadcasting to <strong>70.6% buyers aged 25–44</strong> in Delta &amp; Chennai. We deliver verified lead forms directly to your sales team, driving instant site visit bookings.
+      {growthScenarios && growthScenarios.length > 0 && (
+        <section className={`px-5 md:px-8 py-20 md:py-28 border-b ${
+          isDarkMode ? 'bg-zinc-950/80 border-white/10' : 'bg-slate-50 border-slate-200'
+        }`}>
+          <div className="max-w-7xl mx-auto space-y-16">
+            <div className="text-center max-w-3xl mx-auto space-y-3">
+              <h2 className={`font-display text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight ${
+                isDarkMode ? 'text-white' : 'text-zinc-900'
+              }`}>
+                REAL ESTATE &amp; BRAND <span className="text-[#F97316]">GROWTH SCENARIOS</span>
+              </h2>
+              <p className={`text-sm md:text-base ${isDarkMode ? 'text-white/60' : 'text-slate-600'}`}>
+                How our data-driven marketing funnels turn online reach into actual booked transactions.
               </p>
-              <div className="mt-6 pt-5 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center justify-between gap-2 text-xs font-bold text-[#F97316]">
-                <span>✓ 100+ Layouts Sold Out</span>
-                <span>Drone Aerials &bull; Site Visit Leads</span>
-              </div>
             </div>
 
-            {/* Scenario 2 */}
-            <div className={`p-8 md:p-10 rounded-2xl border transition-all duration-300 relative overflow-hidden group ${
-              isDarkMode ? 'bg-zinc-900/90 border-white/10 hover:border-[#F97316]' : 'bg-white border-slate-200 shadow-md hover:border-[#F97316]'
-            }`}>
-              <div className="w-14 h-14 rounded-2xl bg-[#F97316]/15 text-[#F97316] flex items-center justify-center font-display text-2xl font-black mb-6">
-                02
-              </div>
-              <h3 className={`font-display text-2xl sm:text-3xl font-bold uppercase tracking-tight ${isDarkMode ? 'text-white' : 'text-zinc-900'}`}>
-                ✈️ Gulf &amp; SEA NRI Buyer Acquisition
-              </h3>
-              <p className={`mt-4 text-sm md:text-base leading-relaxed ${isDarkMode ? 'text-white/70' : 'text-slate-600'}`}>
-                With <strong>3.3% reach in UAE</strong> and <strong>2.5% in Singapore</strong>, our international NRI marketing funnels connect non-resident Tamils looking to purchase real estate back in their hometowns, converting overseas interest into bank transfers.
-              </p>
-              <div className="mt-6 pt-5 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center justify-between gap-2 text-xs font-bold text-[#F97316]">
-                <span>✓ UAE (3.3%) &bull; Singapore (2.5%)</span>
-                <span>International NRI Plot Sales</span>
-              </div>
-            </div>
-
-            {/* Scenario 3 */}
-            <div className={`p-8 md:p-10 rounded-2xl border transition-all duration-300 relative overflow-hidden group ${
-              isDarkMode ? 'bg-zinc-900/90 border-white/10 hover:border-[#F97316]' : 'bg-white border-slate-200 shadow-md hover:border-[#F97316]'
-            }`}>
-              <div className="w-14 h-14 rounded-2xl bg-[#F97316]/15 text-[#F97316] flex items-center justify-center font-display text-2xl font-black mb-6">
-                03
-              </div>
-              <h3 className={`font-display text-2xl sm:text-3xl font-bold uppercase tracking-tight ${isDarkMode ? 'text-white' : 'text-zinc-900'}`}>
-                📢 Local Business &amp; Retail Hype
-              </h3>
-              <p className={`mt-4 text-sm md:text-base leading-relaxed ${isDarkMode ? 'text-white/70' : 'text-slate-600'}`}>
-                For retail grand openings, jewelry stores, restaurants, and corporate brands: our <strong>50+ local Instagram pages connect (60KM radius)</strong> and 5 top influencers create massive local footfall and immediate order inquiries.
-              </p>
-              <div className="mt-6 pt-5 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center justify-between gap-2 text-xs font-bold text-[#F97316]">
-                <span>✓ 50+ Local Insta Pages Connect</span>
-                <span>Surrounding 60KM Footfall</span>
-              </div>
-            </div>
-
-            {/* Scenario 4 */}
-            <div className={`p-8 md:p-10 rounded-2xl border transition-all duration-300 relative overflow-hidden group ${
-              isDarkMode ? 'bg-zinc-900/90 border-white/10 hover:border-[#F97316]' : 'bg-white border-slate-200 shadow-md hover:border-[#F97316]'
-            }`}>
-              <div className="w-14 h-14 rounded-2xl bg-[#F97316]/15 text-[#F97316] flex items-center justify-center font-display text-2xl font-black mb-6">
-                04
-              </div>
-              <h3 className={`font-display text-2xl sm:text-3xl font-bold uppercase tracking-tight ${isDarkMode ? 'text-white' : 'text-zinc-900'}`}>
-                📈 Revenue Scaling &amp; ROAS Optimization
-              </h3>
-              <p className={`mt-4 text-sm md:text-base leading-relaxed ${isDarkMode ? 'text-white/70' : 'text-slate-600'}`}>
-                Over 1,500+ ad campaigns executed prove that our funnels eliminate wasted ad dollars. We track cost-per-lead (CPL) and return on ad spend (ROAS) to scale monthly revenue consistently.
-              </p>
-              <div className="mt-6 pt-5 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center justify-between gap-2 text-xs font-bold text-[#F97316]">
-                <span>✓ 1,500+ Ad Campaigns Executed</span>
-                <span>Maximum ROAS Optimization</span>
-              </div>
+            <div className="grid md:grid-cols-2 gap-8">
+              {growthScenarios.map((scenario, idx) => (
+                <div key={idx} className={`p-8 md:p-10 rounded-2xl border transition-all duration-300 relative overflow-hidden group ${
+                  isDarkMode ? 'bg-zinc-900/90 border-white/10 hover:border-[#F97316]' : 'bg-white border-slate-200 shadow-md hover:border-[#F97316]'
+                }`}>
+                  <div className="w-14 h-14 rounded-2xl bg-[#F97316]/15 text-[#F97316] flex items-center justify-center font-display text-2xl font-black mb-6">
+                    {scenario.number || `0${idx + 1}`}
+                  </div>
+                  <h3 className={`font-display text-2xl sm:text-3xl font-bold uppercase tracking-tight ${isDarkMode ? 'text-white' : 'text-zinc-900'}`}>
+                    {scenario.title}
+                  </h3>
+                  <p className={`mt-4 text-sm md:text-base leading-relaxed ${isDarkMode ? 'text-white/70' : 'text-slate-600'}`}>
+                    {scenario.description}
+                  </p>
+                  {scenario.tags && scenario.tags.length > 0 && (
+                    <div className="mt-6 pt-5 border-t border-slate-200 dark:border-white/10 flex flex-wrap items-center justify-between gap-2 text-xs font-bold text-[#F97316]">
+                      {scenario.tags.map((tag, tIdx) => (
+                        <span key={tIdx}>{tag}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* 04 — TRADITIONAL VS KARTHICK TAMILAN COMPARISON */}
       <section className="px-5 md:px-8 py-20 bg-black text-white">

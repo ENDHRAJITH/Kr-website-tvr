@@ -45,7 +45,8 @@ export default function StudiozVideoHero({ videos = [], isDarkMode = false }: St
 
   return (
     <section 
-      className={`relative pt-36 sm:pt-40 md:pt-44 pb-12 md:pb-24 px-4 sm:px-6 lg:px-8 transition-colors duration-500 border-b ${
+      id="cinematic-films-reels"
+      className={`relative py-16 sm:py-20 md:py-28 px-4 sm:px-6 lg:px-8 transition-colors duration-500 border-b ${
         isDarkMode 
           ? 'bg-[#050505] text-white border-white/10' 
           : 'bg-gradient-to-b from-slate-50 via-white to-zinc-50 text-slate-900 border-zinc-200'

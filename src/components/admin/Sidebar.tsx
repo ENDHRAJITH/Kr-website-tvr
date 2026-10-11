@@ -24,6 +24,7 @@ import {
   Sun,
   Moon,
   ShieldCheck,
+  Award,
 } from 'lucide-react'
 
 const navItems = [
@@ -37,6 +38,7 @@ const navItems = [
   { name: 'Portfolio', href: '/admin/portfolio', icon: Briefcase },
   { name: 'Team', href: '/admin/team', icon: Users },
   { name: 'Testimonials', href: '/admin/testimonials', icon: MessageSquareQuote },
+  { name: 'Why Choose Us', href: '/admin/why-choose-us', icon: Award },
   { name: 'Client Logos', href: '/admin/client-logos', icon: ImageIcon },
   { name: 'Site Stats', href: '/admin/site-stats', icon: BarChart2 },
   { name: 'Admin Security', href: '/admin/settings', icon: ShieldCheck },

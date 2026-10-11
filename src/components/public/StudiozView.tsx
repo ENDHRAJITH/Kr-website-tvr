@@ -2,12 +2,14 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { StudiozService, ServiceCategory, WeddingPackage } from '@/types/database'
 import StudiozVideoHero from './StudiozVideoHero'
 import { StudiozVideoItem } from './StudiozVideoMarquee'
 import { useTheme } from '@/context/ThemeContext'
 import { getMediaType, getYouTubeEmbedUrl, getInstagramEmbedUrl } from '@/lib/utils/media'
-import { Play, Video, Check, Sparkles, Plus, Star, ShieldCheck, Camera } from 'lucide-react'
+import { slugify } from '@/lib/utils/slugify'
+import { Play, Video, Check, Sparkles, Plus, Star, ShieldCheck, Camera, Share2 } from 'lucide-react'
 
 interface StudiozViewProps {
   initialServices?: StudiozService[]
@@ -290,8 +292,40 @@ export default function StudiozView({
       isDarkMode ? 'bg-[#050505] text-white' : 'bg-white text-slate-900'
     }`}>
 
-      {/* 1. HERO VIDEO CAROUSEL SHOWCASE */}
-      <StudiozVideoHero videos={videoShowcases} isDarkMode={isDarkMode} />
+      {/* 01. STUDIOZ HERO HEADER */}
+      <section className={`pt-36 md:pt-40 pb-12 md:pb-16 px-5 md:px-8 border-b ${
+        isDarkMode ? 'bg-[#050505] border-white/10' : 'kr-grid border-slate-200'
+      }`}>
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-7">
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#F97316] animate-pulse" />
+                <span className="text-[10px] md:text-xs font-bold uppercase tracking-[.24em] text-[#F97316]">
+                  KR Studioz Visual Productions
+                </span>
+              </div>
+              <h1 className={`font-display font-black uppercase tracking-[-.055em] leading-[.9] text-4xl sm:text-5xl md:text-6xl lg:text-7xl ${
+                isDarkMode ? 'text-white' : 'text-zinc-900'
+              }`}>
+                CINEMATIC PHOTOGRAPHY<br />
+                <span className="text-[#F97316]">&amp; WEDDING FILMS.</span>
+              </h1>
+            </div>
+
+            <div className="max-w-lg lg:text-right">
+              <p className={`text-sm md:text-base leading-relaxed ${isDarkMode ? 'text-white/60' : 'text-slate-600'}`}>
+                Preserving raw emotions, timeless family traditions &amp; grand visual memories with 4K Sony Alpha cinematography and drone aerials across Tamil Nadu.
+              </p>
+              <div className="flex flex-wrap gap-2 mt-5 lg:justify-end">
+                <span className="hero-chip">Traditional &amp; Candid Photography</span>
+                <span className="hero-chip">4K Wedding Cinema</span>
+                <span className="hero-chip">Helios &amp; Drone Aerials</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* =========================================================================
           2. WEDDING PACKAGES SECTION (3 RELIGIONS × 3 PLANS) FROM DATABASE TABLE
@@ -464,36 +498,51 @@ export default function StudiozView({
                   </div>
                 </div>
 
-                {/* Actions: View Media Modal & Add To Cart */}
+                {/* Actions: View Media Modal, Package Slug Link & Add To Cart */}
                 <div className="mt-8 pt-6 border-t border-white/10 space-y-2.5">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setDetailService({
-                        id: plan.id,
-                        service_no: plan.planCode === 'A' ? 1 : plan.planCode === 'B' ? 2 : 3,
-                        name: `${currentReligionObj.name} — ${plan.name}`,
-                        category_id: null,
-                        label: currentReligionObj.name,
-                        price: plan.price,
-                        description: plan.tagline,
-                        icon: 'camera',
-                        hero_image_url: plan.heroImage,
-                        cover_points: [...plan.photoTypes, ...plan.deliverables],
-                        gallery_urls: plan.galleryUrls && plan.galleryUrls.length > 0 ? plan.galleryUrls : [plan.heroImage, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'],
-                        display_order: 1,
-                        is_active: true
-                      })
-                    }}
-                    className={`w-full py-2.5 rounded-xl border text-xs font-bold uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-2 ${
-                      isDarkMode
-                        ? 'border-white/20 hover:border-[#F97316] text-white/90 hover:text-[#F97316]'
-                        : 'border-slate-300 hover:border-[#F97316] text-slate-700 hover:text-[#F97316] bg-slate-50 hover:bg-white'
-                    }`}
-                  >
-                    <Video className="w-3.5 h-3.5 text-[#F97316]" />
-                    <span>View Photos &amp; Video ▶</span>
-                  </button>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDetailService({
+                          id: plan.id,
+                          service_no: plan.planCode === 'A' ? 1 : plan.planCode === 'B' ? 2 : 3,
+                          name: `${currentReligionObj.name} — ${plan.name}`,
+                          category_id: null,
+                          label: currentReligionObj.name,
+                          price: plan.price,
+                          description: plan.tagline,
+                          icon: 'camera',
+                          hero_image_url: plan.heroImage,
+                          cover_points: [...plan.photoTypes, ...plan.deliverables],
+                          gallery_urls: plan.galleryUrls && plan.galleryUrls.length > 0 ? plan.galleryUrls : [plan.heroImage, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'],
+                          display_order: 1,
+                          is_active: true
+                        })
+                      }}
+                      className={`py-2.5 px-2 rounded-xl border text-[11px] font-bold uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-1.5 ${
+                        isDarkMode
+                          ? 'border-white/20 hover:border-[#F97316] text-white/90 hover:text-[#F97316]'
+                          : 'border-slate-300 hover:border-[#F97316] text-slate-700 hover:text-[#F97316] bg-slate-50 hover:bg-white'
+                      }`}
+                    >
+                      <Video className="w-3.5 h-3.5 text-[#F97316]" />
+                      <span>Photos &amp; Video</span>
+                    </button>
+
+                    <Link
+                      href={`/studioz/${slugify(`${currentReligionObj.name} ${plan.name} Plan ${plan.planCode}`)}`}
+                      className={`py-2.5 px-2 rounded-xl border text-[11px] font-bold uppercase tracking-wider transition flex items-center justify-center gap-1.5 ${
+                        isDarkMode
+                          ? 'border-orange-500/40 text-orange-400 hover:bg-orange-500 hover:text-white'
+                          : 'border-orange-400/50 text-orange-600 hover:bg-orange-500 hover:text-white'
+                      }`}
+                      title="View Details & Share"
+                    >
+                      <Share2 className="w-3.5 h-3.5" />
+                      <span>Details &amp; Share ↗</span>
+                    </Link>
+                  </div>
 
                   <button
                     type="button"
@@ -642,19 +691,32 @@ export default function StudiozView({
                       )}
 
                       {/* Actions */}
-                      <div className="pt-6 border-t border-white/10 grid sm:grid-cols-2 gap-3">
+                      <div className="pt-6 border-t border-white/10 flex flex-wrap gap-2.5">
                         <button
                           type="button"
                           onClick={() => setDetailService(service)}
-                          className={`py-3 px-4 rounded-xl border text-xs font-bold uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-2 ${
+                          className={`flex-1 py-3 px-3 rounded-xl border text-xs font-bold uppercase tracking-wider transition cursor-pointer flex items-center justify-center gap-1.5 ${
                             isDarkMode
                               ? 'border-white/20 hover:border-[#F97316] text-white hover:text-[#F97316]'
                               : 'border-slate-300 hover:border-[#F97316] text-slate-700 hover:text-[#F97316] bg-white'
                           }`}
                         >
                           <Video className="w-3.5 h-3.5 text-[#F97316]" />
-                          <span>View Details &amp; Media</span>
+                          <span>View Media</span>
                         </button>
+
+                        <Link
+                          href={`/studioz/${slugify(service.name)}`}
+                          className={`py-3 px-3 rounded-xl border text-xs font-bold uppercase tracking-wider transition flex items-center justify-center gap-1.5 ${
+                            isDarkMode
+                              ? 'border-orange-500/40 text-orange-400 hover:bg-orange-500 hover:text-white'
+                              : 'border-orange-400/50 text-orange-600 hover:bg-orange-500 hover:text-white'
+                          }`}
+                          title="View Details & Share"
+                        >
+                          <Share2 className="w-3.5 h-3.5" />
+                          <span>Details ↗</span>
+                        </Link>
 
                         <button
                           type="button"
@@ -663,10 +725,10 @@ export default function StudiozView({
                             name: service.name,
                             price: service.price
                           })}
-                          className="py-3 px-4 rounded-xl font-display font-bold text-xs uppercase tracking-widest transition cursor-pointer flex items-center justify-center gap-2 bg-[#F97316] hover:bg-white hover:text-black text-white shadow-lg shadow-orange-500/20"
+                          className="flex-1 py-3 px-4 rounded-xl font-display font-bold text-xs uppercase tracking-widest transition cursor-pointer flex items-center justify-center gap-2 bg-[#F97316] hover:bg-white hover:text-black text-white shadow-lg shadow-orange-500/20"
                         >
                           <Plus className="w-4 h-4" />
-                          <span>{addedNotice === service.id ? '✓ Service Added' : 'Add To Enquiry'}</span>
+                          <span>{addedNotice === service.id ? '✓ Added' : 'Add To Enquiry'}</span>
                         </button>
                       </div>
                     </div>
@@ -872,6 +934,11 @@ export default function StudiozView({
           </div>
         </div>
       )}
+
+      {/* =========================================================================
+          CINEMATIC FILMS & REELS SHOWCASE (MOVED TO BOTTOM OF STUDIOZ PAGE)
+      ========================================================================= */}
+      <StudiozVideoHero videos={videoShowcases} isDarkMode={isDarkMode} />
 
       {/* MEDIA LIGHTBOX MODAL (Photos & Videos) */}
       {lightboxImg && (
